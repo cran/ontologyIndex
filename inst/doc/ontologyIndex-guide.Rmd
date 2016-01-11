@@ -1,0 +1,51 @@
+---
+title: "Creating and querying an ontology index"
+author: "Daniel Greene"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Creating and querying an ontology index}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+ontologyIndex has a function to create an `ontology_index` object from a given `.obo` file. The package comes with the such an object, `hpo`, encapsulating the Human Phenotype Ontology.
+
+```{r}
+suppressPackageStartupMessages(library(ontologyIndex))
+data(hpo)
+```
+
+To use an up-to-date version, download the relevant `.obo` file and read it into R using the function `get_ontology`, passing it the file name and the correct qualifier (e.g. `"HP"` for the HPO.
+
+```{r eval=FALSE}
+ontology <- get_ontology(file, qualifier)
+```
+
+The object is just a list of vectors and lists term properties, indexed by the IDs of the terms. 
+
+```{r, echo=FALSE}
+data.frame(property=names(hpo), class=sapply(hpo, class), stringsAsFactors=FALSE, row.names=NULL)
+```
+
+Thus you can look up properties for a given term using `[` and `[[` as appropriate. 
+
+```{r}
+hpo$name["HP:0001873"]
+hpo$ancestors[["HP:0001873"]]
+hpo$name[hpo$ancestors[["HP:0001873"]]]
+```
+
+## Removing redundant terms
+
+A set of terms, i.e. a character vector of term IDs, may contain ancestor-descendant pairs. The function `minimal_set` removes such pairs so as to leave a *minimal set* of terms, in the sense of the ontology's directed acyclic graph.
+
+```{r}
+minimal_set(hpo, c("HP:0001871", "HP:0001873", "HP:0011877"))
+```
+
+## Finding all ancestors of a set of terms
+
+```{r}
+get_ancestors(hpo, c("HP:0001873", "HP:0011877"))
+```
