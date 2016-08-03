@@ -12,12 +12,12 @@ get_term_descendancy_matrix(ontology, terms = NULL, rows = terms,
 
 \item{terms}{Character vector of ontological terms.}
 
-\item{rows}{Rows for resultant matrix (defaults to \code{terms})}
+\item{rows}{Rows for resultant matrix (defaults to \code{terms}).}
 
-\item{cols}{Cols for resultant matrix (defaults to \code{terms})}
+\item{cols}{Cols for resultant matrix (defaults to \code{terms}).}
 }
 \value{
-A logical descendancy matrix of \code{terms} by \code{terms} based on DAG structure of ontology. The row term is an ancestor of the column term if result[row.term,col.term] == TRUE
+A logical descendancy matrix of \code{terms} by \code{terms} based on DAG structure of ontology. The row term is an ancestor of the column term if result[row.term,col.term] == TRUE.
 }
 \description{
 Get logical descendancy matrix for set of terms

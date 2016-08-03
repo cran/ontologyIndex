@@ -1,10 +1,55 @@
+#' Get property of individual ontological term
+#'
+#' @template ontology
+#' @param property_name Name of property.
+#' @param term Character value of term ID.
+#' @template terms
+#' @param as_names Logical value determining whether to return character vector of names or IDs (default).
+#' @export
+get_term_property <- function(ontology, property_name, term) {
+	if (!property_name %in% names(ontology))
+		stop(paste0("Given property '", property_name, "' is unknown in ontology"))
+	if (!(length(term) == 1))
+		stop("Must specify only a single term")
+	if (!term %in% ontology$id)
+		stop("Term ID is not in ontology")
+	if (is.list(ontology[[property_name]]))
+		ontology[[property_name]][[term]]
+	else
+		ontology[[property_name]][term]
+}
+
+#' @rdname get_term_property
+#' @export
+get_term_names <- function(ontology, terms) ontology$name[terms]
+
+#' @rdname get_term_property
+#' @export
+get_term_children <- function(ontology, term, as_names=FALSE) {
+	x <- get_term_property(ontology=ontology, property_name="children", term=term)
+	if (as_names) get_term_names(ontology, x) else x
+}
+#' @rdname get_term_property
+#' @export
+get_term_parents <- function(ontology, term, as_names=FALSE) {
+	x <- get_term_property(ontology=ontology, property_name="parents", term=term)
+	if (as_names) get_term_names(ontology, x) else x
+}
+
+#' @rdname get_term_property
+#' @export
+get_term_ancestors <- function(ontology, term, as_names=FALSE) { 
+	x <- get_term_property(ontology=ontology, property_name="ancestors", term=term)
+	if (as_names) get_term_names(ontology, x) else x
+}
+
 #' Get logical descendancy matrix for set of terms
 #' 
 #' @template ontology
 #' @template terms
-#' @param rows Rows for resultant matrix (defaults to \code{terms})
-#' @param cols Cols for resultant matrix (defaults to \code{terms})
-#' @return A logical descendancy matrix of \code{terms} by \code{terms} based on DAG structure of ontology. The row term is an ancestor of the column term if result[row.term,col.term] == TRUE
+#' @param rows Rows for resultant matrix (defaults to \code{terms}).
+#' @param cols Cols for resultant matrix (defaults to \code{terms}).
+#' @return A logical descendancy matrix of \code{terms} by \code{terms} based on DAG structure of ontology. The row term is an ancestor of the column term if result[row.term,col.term] == TRUE.
 #' @examples 
 #' data(hpo)
 #' get_term_descendancy_matrix(hpo, c("HP:0001873", "HP:0011877"))
@@ -12,8 +57,8 @@
 #' @importFrom stats setNames
 get_term_descendancy_matrix <- function(ontology, terms=NULL, rows=terms, cols=terms) {
 	# 'row is column ancestor'
-	if (length(terms)==1)
-		matrix(FALSE, 1, 1, dimnames=rep(list(terms), 2))
+	if (length(terms) < 2)
+		matrix(FALSE, length(terms), length(terms), dimnames=rep(list(terms), 2))
 	else
 		sapply(
 			setNames(cols, cols),
@@ -27,14 +72,14 @@ get_term_descendancy_matrix <- function(ontology, terms=NULL, rows=terms, cols=t
 #' Intersect set of terms with branches of ontology
 #' 
 #' @template ontology
-#' @param branch_roots Character vector of roots of branches you wish to intersect with
+#' @template branch_roots
 #' @template terms
 #' @return Character vector of terms
 #' @examples 
 #' data(hpo)
 #' intersection_with_branches(hpo, "HP:0001872", c("HP:0001873", "HP:0011877"))
 #' @export
-intersection_with_branches <- function(ontology, branch_roots, terms) "if"(
+intersection_with_branches <- function(ontology, branch_roots, terms) as.character("if"(
 	length(terms) > 0,
 	terms[
 		sapply(
@@ -43,7 +88,7 @@ intersection_with_branches <- function(ontology, branch_roots, terms) "if"(
 		)
 	],
 	character(0)
-)
+))
 
 #' Remove redundant/implied terms
 #'
@@ -56,6 +101,7 @@ intersection_with_branches <- function(ontology, branch_roots, terms) "if"(
 #' @export
 minimal_set <- function(ontology, terms) {
 	redundant <- unlist(
+		use.names=FALSE,
 		lapply(
 			terms,
 			function(x) setdiff(ontology$ancestors[[x]], x)
@@ -77,6 +123,7 @@ minimal_set <- function(ontology, terms) {
 get_ancestors <- function(ontology, terms) {
 	unique(
 		unlist(
+			use.names=FALSE,
 			lapply(terms, function(x) ontology$ancestors[[x]])
 		)
 	)
@@ -116,7 +163,7 @@ get_descendants <- function(ontology, ancestor, remove_ancestor=FALSE) {
 #' get_terms_by_set_matrix(list(Patient1=c("HP:0001873")))
 #' @export
 get_terms_by_set_matrix <- function(term_sets, columns=NULL) {
-	all.terms <- unique(unlist(term_sets))
+	all.terms <- unique(unlist(use.names=FALSE, term_sets))
 	result <- t(sapply(term_sets, function(x) all.terms %in% x))
 	colnames(result) <- all.terms
 	if (!is.null(columns)) {
@@ -137,31 +184,31 @@ get_terms_by_set_matrix <- function(term_sets, columns=NULL) {
 #' Exclude terms descending from particular term from a character vector of terms
 #'
 #' @template ontology
-#' @param branch_root Term whose descendants should be excluded
+#' @template branch_roots
 #' @template terms
 #' @return Character vector of terms
 #' @export
-exclude_branch <- function(ontology, branch_root, terms) Filter(
+exclude_branches <- function(ontology, branch_roots, terms) as.character(Filter(
 	x=terms,
-	f=function(term) !any(ontology$ancestors[[term]] %in% branch_root)
-)
+	f=function(term) !any(ontology$ancestors[[term]] %in% branch_roots)
+))
 
 #' Prune all terms descending from given term down to that term and ensure no degeneracy
 #'
 #' Warning! Prunes down whole branch, even if terms have parents which don't descend from prune point.
 #'
 #' @template ontology
-#' @param prune_to_point Character value equal to term ID which can be included, but whose descendants should be excluded
+#' @template branch_roots
 #' @template terms
 #' @return Character vector of terms
 #' @export
-prune_branch <- function(ontology, prune_to_point, terms) {
-	excluded <- exclude_branch(ontology, prune_to_point, terms)
-	"if"(
-		length(excluded) == length(terms),
-		terms,
-		c(excluded, prune_to_point)
-	)
+prune_branches <- function(ontology, branch_roots, terms) {
+	excluded <- exclude_branches(ontology, branch_roots, terms)
+	result <- if (length(excluded) == length(terms))
+		terms
+	else
+		c(excluded, branch_roots[branch_roots %in% get_ancestors(ontology, terms)])
+	as.character(result)
 }
 
 #' Get MPO to HPO list
@@ -214,7 +261,7 @@ get_mpo_to_hpo <- function(ontology, cross_species_file) {
 		USE.NAMES=FALSE
 	)), function(x) minimal_set(
 			ontology, 
-			swap_out_alt_ids(ontology, substr(x, 1, 10))
+			force_compatibility(ontology, substr(x, 1, 10))
 		)
 	)
 }

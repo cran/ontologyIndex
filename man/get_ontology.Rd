@@ -4,12 +4,12 @@
 \alias{get_ontology}
 \title{Get R-Object representation of ontology from obo file}
 \usage{
-get_ontology(file, qualifier = "HP")
+get_ontology(file, include_descriptions = FALSE)
 }
 \arguments{
 \item{file}{File path of obo file}
 
-\item{qualifier}{Character vector - "HP" for HPO, "MP" for MPO, etc.}
+\item{include_descriptions}{Logical value determining whether to parse the term descriptions and include them in the \code{ontology_index} object.}
 }
 \value{
 R-Object (list) representing ontology

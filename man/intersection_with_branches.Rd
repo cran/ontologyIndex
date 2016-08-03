@@ -9,7 +9,7 @@ intersection_with_branches(ontology, branch_roots, terms)
 \arguments{
 \item{ontology}{\code{ontology_index} object.}
 
-\item{branch_roots}{Character vector of roots of branches you wish to intersect with}
+\item{branch_roots}{Character vector of term IDs of branch roots.}
 
 \item{terms}{Character vector of ontological terms.}
 }

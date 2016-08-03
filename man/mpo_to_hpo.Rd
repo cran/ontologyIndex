@@ -3,7 +3,7 @@
 \docType{data}
 \name{mpo_to_hpo}
 \alias{mpo_to_hpo}
-\title{Object containing data for mapping between MPO and HPO}
+\title{Mapping from MPO to HPO}
 \format{List of HPO terms per MPO term}
 \description{
 List containing cross-species ontology (MPO to HPO) information - character vectors of HPO terms indexed by associated MPO term IDs

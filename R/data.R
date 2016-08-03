@@ -1,8 +1,8 @@
 #' @importFrom stats setNames
 str_ancs_from_pars <- function(pars, chld) {
 	stopifnot(identical(names(pars), names(chld)))
-	int.pars <- c(split(as.integer(factor(unlist(pars), levels=names(pars))), unlist(mapply(SIMPLIFY=FALSE, FUN=rep, names(pars), sapply(pars, length)))), setNames(nm=setdiff(names(pars), unlist(pars)), rep(list(integer(0)), length(setdiff(names(pars), unlist(pars))))))[names(pars)]
-	int.chld <- c(split(as.integer(factor(unlist(chld), levels=names(chld))), unlist(mapply(SIMPLIFY=FALSE, FUN=rep, names(chld), sapply(chld, length)))), setNames(nm=setdiff(names(chld), unlist(chld)), rep(list(integer(0)), length(setdiff(names(chld), unlist(chld))))))[names(chld)]
+	int.pars <- c(split(as.integer(factor(unlist(use.names=FALSE, pars), levels=names(pars))), unlist(use.names=FALSE, mapply(SIMPLIFY=FALSE, FUN=rep, names(pars), sapply(pars, length)))), setNames(nm=setdiff(names(pars), unlist(use.names=FALSE, pars)), rep(list(integer(0)), length(setdiff(names(pars), unlist(use.names=FALSE, pars))))))[names(pars)]
+	int.chld <- c(split(as.integer(factor(unlist(use.names=FALSE, chld), levels=names(chld))), unlist(use.names=FALSE, mapply(SIMPLIFY=FALSE, FUN=rep, names(chld), sapply(chld, length)))), setNames(nm=setdiff(names(chld), unlist(use.names=FALSE, chld)), rep(list(integer(0)), length(setdiff(names(chld), unlist(use.names=FALSE, chld))))))[names(chld)]
 
 	setNames(nm=names(pars), lapply(ancs_from_pars(
 		int.pars,
@@ -16,10 +16,14 @@ ancs_from_pars <- function(pars, chld) {
 	cands <- which(done)
 	new.done <- 1:length(cands)
 	while (!all(done)) {
-		cands <- unique(unlist(chld[cands[new.done]]))
-		new.done <- which(sapply(pars[cands], function(x) all(done[x])))
+		cands <- unique(unlist(use.names=FALSE, chld[cands[new.done]]))
+		v <- sapply(pars[cands], function(x) all(done[x]))
+		if (!is.logical(v)) {
+			stop("Can't get ancestors for items ", paste0(collapse=", ", which(!done)))
+		}
+		new.done <- which(v)
 		done[cands[new.done]] <- TRUE
-		ancs[cands[new.done]] <- mapply(SIMPLIFY=FALSE, FUN=c, lapply(cands[new.done], function(x) unique(unlist(ancs[pars[[x]]]))), cands[new.done])
+		ancs[cands[new.done]] <- mapply(SIMPLIFY=FALSE, FUN=c, lapply(cands[new.done], function(x) unique(unlist(use.names=FALSE, ancs[pars[[x]]]))), cands[new.done])
 	}
 	ancs
 }
@@ -27,37 +31,53 @@ ancs_from_pars <- function(pars, chld) {
 #' Get R-Object representation of ontology from obo file
 #'
 #' @param file File path of obo file
-#' @param qualifier Character vector - "HP" for HPO, "MP" for MPO, etc.
+#' @param include_descriptions Logical value determining whether to parse the term descriptions and include them in the \code{ontology_index} object.
 #' @return R-Object (list) representing ontology
 #' @export
 #' @importFrom stats setNames
-get_ontology <- function(file, qualifier="HP") {
-	hpo.obo.lines <- readLines(file)
+get_ontology <- function(file, include_descriptions=FALSE) {
+	ontology.obo.lines <- readLines(file)
 
-	hpo.term.id.pattern <- paste("^id: (", qualifier, ":\\d+)", sep="")
-	hpo.term.name.pattern <- paste("^name: (\\.*)", sep="")
-	hpo.term.parent.pattern <- paste("^is_a: (", qualifier, ":\\d+)", sep="")
-	hpo.term.pattern <- paste("", qualifier, ":\\d+", sep="")
-	hpo.term.alt_id.pattern <- paste("^alt_id: (", qualifier, ":\\d+)", sep="")
+	term.id.pattern <- "^id: ([^ !]+).*"
+	term.name.pattern <- "^name: (\\.*)"
+	term.parent.pattern <- "^is_a: ([^ !]+).*"
 
-	hpo.term.id.lines <- grep(hpo.term.id.pattern, hpo.obo.lines)
-	hpo.term.name.lines <- grep(hpo.term.name.pattern, hpo.obo.lines)
-	hpo.term.parent.lines <- grep(hpo.term.parent.pattern, hpo.obo.lines)
-	hpo.term.alt_id.lines <- grep(hpo.term.alt_id.pattern, hpo.obo.lines)
+	term.alt_id.pattern <- "^alt_id: ([^ !]+).*"
+	obsolete.lines <- grep("^is_obsolete: true", ontology.obo.lines)
+
+	term.id.lines <- grep(term.id.pattern, ontology.obo.lines)
+	term.name.lines <- grep(term.name.pattern, ontology.obo.lines)
+	term.parent.lines <- grep(term.parent.pattern, ontology.obo.lines)
+	term.alt_id.lines <- grep(term.alt_id.pattern, ontology.obo.lines)
 
 	ontology <- NULL
 
 	ontology$id <- sub(
-		hpo.term.id.pattern,
+		term.id.pattern,
 		"\\1",
-		hpo.obo.lines[hpo.term.id.lines]
+		ontology.obo.lines[term.id.lines]
 	)
 
-	ontology$name <- sub(
-		hpo.term.name.pattern, 
+	term.names <- sub(
+		term.name.pattern, 
 		"\\1", 
-		hpo.obo.lines[hpo.term.name.lines]
+		ontology.obo.lines[term.name.lines]
 	)
+
+	ontology$obsolete <- setNames(nm=ontology$id, ontology$id %in% as.character(cut(
+		obsolete.lines,
+		breaks=c(term.id.lines,length(ontology.obo.lines)+1),
+		labels=ontology$id
+	)))
+
+	ontology$name <- sapply(split(
+		term.names,
+		cut(
+			term.name.lines,
+			breaks=c(term.id.lines,length(ontology.obo.lines)+1),
+			labels=ontology$id
+		)
+	)[ontology$id], "[", 1)
 
 	names(ontology$name) <- ontology$id
 
@@ -69,60 +89,76 @@ get_ontology <- function(file, qualifier="HP") {
 		sub=""
 	)
 
-	hpo.parent.term.matches <- regexpr(
-		hpo.term.pattern,
-		hpo.obo.lines[hpo.term.parent.lines]
-	)
-
-	hpo.parent.terms <- substr(
-		hpo.obo.lines[hpo.term.parent.lines],
-		hpo.parent.term.matches,
-		hpo.parent.term.matches + attr(hpo.parent.term.matches, "match.length")-1
+	ontology.parent.terms <- sub(
+		term.parent.pattern,
+		"\\1",
+		ontology.obo.lines[term.parent.lines]
 	)
 
 	ontology$parents <- split(
-		hpo.parent.terms,
+		ontology.parent.terms,
 		cut(
-			hpo.term.parent.lines,
-			breaks=c(hpo.term.id.lines,length(hpo.obo.lines)+1),
+			term.parent.lines,
+			breaks=c(term.id.lines,length(ontology.obo.lines)+1),
 			labels=ontology$id
 		)
 	)[ontology$id]
 	
-	hpo.alt_id.matches <- regexec(
-		hpo.term.pattern,
-		hpo.obo.lines[hpo.term.alt_id.lines]
-	)
-	
-	hpo.alt_ids <- regmatches(
-		hpo.obo.lines[hpo.term.alt_id.lines],
-		hpo.alt_id.matches
+	ontology.alt_ids <- sub(
+		term.alt_id.pattern,
+		"\\1",
+		ontology.obo.lines[term.alt_id.lines]
 	)
 
-	hpo.alt_ids <- sapply(hpo.alt_ids, function(x) x[1])
-	
 	ontology$alt_id <- as.character( 
 		cut(
-			hpo.term.alt_id.lines,
-			breaks=c(hpo.term.id.lines,length(hpo.obo.lines)+1),
+			term.alt_id.lines,
+			breaks=c(term.id.lines,length(ontology.obo.lines)+1),
 			labels=ontology$id
 		)
 	)	
-	names(ontology$alt_id) <- hpo.alt_ids
+
+	names(ontology$alt_id) <- ontology.alt_ids
+
+	if (include_descriptions) {
+		ontology$def <- sub(
+			"^def: (\\.*)",
+			"\\1", 
+			ontology.obo.lines[grep("^def: (\\.*)", ontology.obo.lines)]
+		)
+
+		names(ontology$def) <- as.character( 
+			cut(
+				grep("^def: (\\.*)", ontology.obo.lines),
+				breaks=c(term.id.lines,length(ontology.obo.lines)+1),
+				labels=ontology$id
+			)
+		)
+
+		Encoding(ontology$def) <- "latin1"
+		ontology$def <- iconv(
+			ontology$def,
+			"latin1",
+			"ASCII",
+			sub=""
+		)
+
+		ontology$def <- setNames(nm=ontology$id, ontology$def[ontology$id])
+	}
 
 	names(ontology$id) <- ontology$id
 
 	ontology$children <- c(
 		lapply(FUN=as.character, X=split(
-			unlist(mapply(SIMPLIFY=FALSE, FUN=rep, names(ontology$parents), sapply(ontology$parents, length))),
-			unlist(ontology$parents)
+			unlist(use.names=FALSE, mapply(SIMPLIFY=FALSE, FUN=rep, names(ontology$parents), sapply(ontology$parents, length))),
+			unlist(use.names=FALSE, ontology$parents)
 		)),
-		setNames(nm=setdiff(ontology$id, unlist(ontology$parents)), rep(list(character(0)), length(setdiff(ontology$id, unlist(ontology$parents)))))
+		setNames(nm=setdiff(ontology$id, unlist(use.names=FALSE, ontology$parents)), rep(list(character(0)), length(setdiff(ontology$id, unlist(use.names=FALSE, ontology$parents)))))
 	)[ontology$id]
 
 	ontology$ancestors <- str_ancs_from_pars(ontology$parents, ontology$children)
 
-	ontology$version <- hpo.obo.lines[1:11]
+	ontology$version <- ontology.obo.lines[1:11]
 
 	structure(ontology, class="ontology_index")
 }
@@ -131,18 +167,20 @@ get_ontology <- function(file, qualifier="HP") {
 #'
 #' @template ontology
 #' @template terms
-#' @param remove_dead Boolean to indicate whether to strip out terms which can't be found in the given ontology database argument
-#' @return A directed adjacency matrix of \code{terms} based on DAG structure of ontology, whereby each term is considered adjacent to it's MRCA in \code{terms}
+#' @param remove_unmatchable Boolean value determining whether to silently remove unmatchable terms. Throws an error if there exist terms which cannot be matched in the ontology, including via `alt_id' fields.
+#' @return Character vector of terms which are compatible with the given ontology.
 #' @examples
 #' data(hpo)
-#' swap_out_alt_ids(hpo, c("HP:0001873"))
+#' force_compatibility(hpo, c("HP:0001873","nonsense term"))
 #' @export
-swap_out_alt_ids <- function(ontology, terms, remove_dead=FALSE) {
-	need.swap <- terms %in% names(ontology$alt_id)
-	terms[need.swap] <- ontology$alt_id[terms[need.swap]]
-	if (remove_dead) 
-		terms <- terms[terms %in% ontology$id]
-	terms
+force_compatibility <- function(ontology, terms, remove_unmatchable=TRUE) {
+	need.swap <- (!terms %in% ontology$id) | ontology$obsolete[terms] | (terms %in% names(ontology$alt_id))
+	can_swap <- need.swap & (terms %in% names(ontology$alt_id[!ontology$obsolete[ontology$alt_id]]))
+	terms[can_swap] <- ontology$alt_id[terms[can_swap]]
+	if (!remove_unmatchable & any(need.swap & (!can_swap))) {
+		stop(paste0("Unmatchable terms: ", paste0(collapse="; ", "'", terms[need.swap & !can_swap], "'")))
+	}
+	terms[!need.swap | can_swap]
 }
 
 #' Get frequency of each term in a set of phenotypes
@@ -179,7 +217,7 @@ get_term_info_content <- function(
 	term_sets,
 	patch_missing=FALSE
 ) {
-	terms.tab <- table(unlist(lapply(term_sets, function(x) get_ancestors(ontology, x))))
+	terms.tab <- table(unlist(use.names=FALSE, lapply(term_sets, function(x) get_ancestors(ontology, x))))
 	total.patients <- length(term_sets)
 	terms.numeric <- as.numeric(terms.tab)
 	names(terms.numeric) <- names(terms.tab)
@@ -197,18 +235,26 @@ get_term_info_content <- function(
 	result
 }
 
-#' \code{ontology_index} object encapsulating structure of the Human Phenotype Ontology (HPO) comprising a \code{list} of lists/vectors of properties of HPO terms indexed by term ID
+#' \code{ontology_index} object encapsulating structure of the Gene Ontology (HPO) comprising a \code{list} of lists/vectors of properties of GO terms indexed by term ID
 #' 
-#' @name hpo
-#' @title HPO Terms object
+#' @name go 
+#' @title GO index
 #' @docType data
 #' @format List of lists and vectors
 NULL
 
-#' \code{ontology_index} object encapsulating structure of the Human Phenotype Ontology (MPO) comprising a \code{list} of lists/vectors of properties of MPO terms indexed by term ID
+#' \code{ontology_index} object encapsulating structure of the Human Phenotype Ontology (HPO) comprising a \code{list} of lists/vectors of properties of HPO terms indexed by term ID
+#' 
+#' @name hpo
+#' @title HPO index
+#' @docType data
+#' @format List of lists and vectors
+NULL
+
+#' \code{ontology_index} object encapsulating structure of the Mammalian Phenotype Ontology (MPO) comprising a \code{list} of lists/vectors of properties of MPO terms indexed by term ID
 #' 
 #' @name mpo
-#' @title MPO Terms object (based on version 887 of the MPO)
+#' @title MPO index
 #' @docType data
 #' @format List of lists and vectors
 NULL
@@ -216,7 +262,7 @@ NULL
 #' List containing cross-species ontology (MPO to HPO) information - character vectors of HPO terms indexed by associated MPO term IDs
 #'
 #' @name mpo_to_hpo
-#' @title Object containing data for mapping between MPO and HPO
+#' @title Mapping from MPO to HPO
 #' @docType data
 #' @format List of HPO terms per MPO term
 NULL
