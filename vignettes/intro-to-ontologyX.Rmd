@@ -1,0 +1,102 @@
+---
+title: "Introduction to ontologyX"
+author: "Daniel Greene"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to ontologyX}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+```{r echo=FALSE}
+knitr::opts_chunk$set(dev="svg", fig.width=7, fig.height=5, dev="svg", fig.align="center")
+```
+`ontologyIndex` is the foundation of the 'ontologyX' packages: 
+
+* `ontologyIndex`, for representing ontologies as R objects and enabling simple queries, 
+* `ontologySimilarity`, for computing semantic similarity between ontological terms and annotations, 
+* `ontologyPlot` for visualising sets of ontological terms with various graphical options. 
+
+The functionality of the `ontologyIndex` package is centered around `ontology_index` objects: simple R representations of ontologies consisting of `list`s and `vector`s of term properties (ID, label, etc.) which are named by term so that simple look-ups by term can be performed. Ontologies encoded in OBO or OWL format can be read into R using the function `get_ontology`, or created explicitly using the function `ontology_index`. The minimum requirement for creating an `ontology_index` object is that each term should have an ID, a label and a set of parents/superclasses (possibly empty). The package comes with three such ready-made `ontology_index` objects: `hpo`, `mpo` and `go`, encapsulating the Human Phenotype Ontology (HPO), Mammalian Phenotype Ontology (MPO) and Gene Ontology (GO) respectively, each loadable with `data`. Here we'll demonstrate the package using the HPO.
+
+```{r}
+library(ontologyIndex)
+data(hpo)
+```
+
+Note: to use an up-to-date version of a given ontology, download the relevant `.obo` or `.owl` file and read it into R using the function `get_ontology`:
+
+```{r eval=FALSE}
+ontology <- get_ontology(file)
+```
+
+The `ontology_index` object is just a list of 'vectors and lists' of term properties, indexed by the IDs of the terms:
+
+```{r, echo=FALSE}
+data.frame(property=names(hpo), class=sapply(hpo, class), stringsAsFactors=FALSE, row.names=NULL)
+```
+
+The 'special' term properties, which all `ontology_index` objects contain, are `id`, `name`, `parents`, `children` and `ancestors`. These are the properties which the functions in the `ontologyIndex` package operate on - however, additional properties per term - custom properties, or whichever properties are contained in the original file - can also be read in and queried in the same way (see the vignette 'Creating an ontology_index'). Custom functions which operate on additional properties can also be defined. The `children` and `ancestors` properties are based on propagating the `parent` relationships for each node. If reading an ontology from a file, the definition of the `parents` of each term can be defined as desired - for instance it could reflect `is_a`/'superclass' relationships, or `part_of` relationships, or both (see 'Creating an ontology_index' and `?get_ontology` for more details).
+
+You can use the function `get_term_property` to query the `ontology_index` object, and retrieve a particular attribute for a single term. For instance:
+```{r}
+get_term_property(ontology=hpo, property="ancestors", term="HP:0001873", as_names=TRUE)
+```
+
+However you can also look up properties for a given term using `[` and `[[` as appropriate, since an `ontology_index` just a `list`. This is the best way to use the `ontology_index` if you are operating on multiple terms as it's faster.
+
+```{r}
+hpo$name["HP:0001873"]
+hpo$id[grep(x=hpo$name, pattern="Thrombocytopenia")]
+hpo$ancestors[["HP:0001873"]]
+hpo$name[hpo$ancestors[["HP:0001873"]]]
+```
+
+## Removing redundant terms
+
+A set of terms (i.e. a `character` vector of term IDs) may contain redundant terms. The function `minimal_set` removes such pairs so as to leave a *minimal set* of terms, in the sense of the ontology's directed acyclic graph.
+
+```{r}
+terms <- c("HP:0001871", "HP:0001873", "HP:0011877")
+hpo$name[terms]
+minimal <- minimal_set(hpo, terms)
+hpo$name[minimal]
+```
+
+## Finding all ancestors of a set of terms
+
+To find all the ancestors of a set of terms, i.e. all the terms which are an ancestor of any term in the given set, on can use the `get_ancestors` function:
+```{r}
+get_ancestors(hpo, c("HP:0001873", "HP:0011877"))
+```
+
+## Operating on subclasses 
+
+There are functions which allow set operations with respect to descendancy: `intersection_with_descendants`, `exclude_descendants` and `prune_descendants`. Each function accepts a set of terms `terms` and a set of root terms `roots`. We here demonstrate how these functions work on a set of terms containing: 
+
+* `"HP:0000707"`: Abnormality of the nervous system,
+* `"HP:0000924"`: Abnormality of the skeletal system, 
+* `"HP:0000006"`: Autosomal dominant inheritance.
+
+The panels below show the original, untransformed set of terms, and the set of terms after each of the above mentioned functions has been called on it, passing `"HP:0000118"`: 'Phenotypic abnormality' as the `roots` argument (terms present in the set highlighted in green, those not present in grey). `ontologyPlot` was used to create the diagrams. 
+
+```{r echo=FALSE}
+library(ontologyPlot)
+in_set <- c("HP:0000707", "HP:0000924", "HP:0000006")
+show <- c(in_set, "HP:0000118", "HP:0000001")
+fns <- list(
+	`Original set`=function(ontology, roots, terms) terms, 
+	`intersection_with_descendants of 'Phenotypic abnormality'`=intersection_with_descendants,
+	`exclude_descendants of 'Phenotypic abnormality'`=exclude_descendants,
+	`prune_descendants of 'Phenotypic abnormality'`=prune_descendants
+)
+par(mfrow=c(2,2))
+for (i in seq_along(fns)) plot(cex.main=0.8, main=names(fns)[i], onto_plot(ontology=hpo, label=official_labels(hpo, show), terms=show, color=if (i == 1) "transparent" else ifelse(show == "HP:0000118", "red", "transparent"), fillcolor=ifelse(show %in% fns[[i]](hpo, roots="HP:0000118", terms=in_set), "#66FF66", "#DBE6E0"), fontsize=15))
+par(mfrow=c(1,1))
+```
+
+For more details see the help file for the individual functions, e.g. `?exclude_descendants`. Note that to perform analagous operations with respect to sets of ancestors, one can use the `get_ancestors` function in conjunction with the base R set functions, e.g. `setdiff` and `intersect`.
+
+## Additional ontological functionality
+
+The packages `ontologySimilarity` and `ontologyPlot` can be used to calculate semantic similarity between and visualise terms and sets of terms respectively: see the corresponding vignettes for more details. 

@@ -2,19 +2,22 @@
 % Please edit documentation in R/data.R
 \name{get_ontology}
 \alias{get_ontology}
-\title{Get R-Object representation of ontology from obo file}
+\title{Read ontology from obo file into R}
 \usage{
-get_ontology(file, include_descriptions = FALSE)
+get_ontology(file, ...)
 }
 \arguments{
 \item{file}{File path of obo file}
 
-\item{include_descriptions}{Logical value determining whether to parse the term descriptions and include them in the \code{ontology_index} object.}
+\item{...}{Additional arguments to pass onto \code{\link{get_OWL}} or \code{\link{get_OBO}}.}
 }
 \value{
 R-Object (list) representing ontology
 }
 \description{
-Get R-Object representation of ontology from obo file
+Reads an ontology from a file in either an OBO or OWL format into R as an \code{ontology_index} object.
+}
+\seealso{
+\code{\link{get_OWL}} \code{\link{get_OBO}}
 }
 

@@ -17,7 +17,9 @@ get_term_descendancy_matrix(ontology, terms = NULL, rows = terms,
 \item{cols}{Cols for resultant matrix (defaults to \code{terms}).}
 }
 \value{
-A logical descendancy matrix of \code{terms} by \code{terms} based on DAG structure of ontology. The row term is an ancestor of the column term if result[row.term,col.term] == TRUE.
+A logical square matrix of with \code{length(terms)} columns and rows. \code{result[row_term,col_term] == TRUE} if \code{row_term} is an ancestor (and not the same as) of \code{col_term}.
+
+A logical matrix.
 }
 \description{
 Get logical descendancy matrix for set of terms

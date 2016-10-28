@@ -2,7 +2,7 @@
 % Please edit documentation in R/sets.R
 \name{minimal_set}
 \alias{minimal_set}
-\title{Remove redundant/implied terms}
+\title{Remove redundant/implied terms from a set of terms}
 \usage{
 minimal_set(ontology, terms)
 }
@@ -15,7 +15,7 @@ minimal_set(ontology, terms)
 Character vector of terms
 }
 \description{
-Remove redundant/implied terms
+Remove redundant/implied terms from a set of terms
 }
 \examples{
 data(hpo)

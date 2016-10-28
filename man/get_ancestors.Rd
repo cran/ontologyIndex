@@ -2,7 +2,7 @@
 % Please edit documentation in R/sets.R
 \name{get_ancestors}
 \alias{get_ancestors}
-\title{Get set of all ancestors of set of terms}
+\title{Get set of terms containing all ancestors of terms in a given set}
 \usage{
 get_ancestors(ontology, terms)
 }
@@ -15,7 +15,7 @@ get_ancestors(ontology, terms)
 Character vector of all terms which are an ancestor of at least one term in \code{terms}, including the terms themselves
 }
 \description{
-Get set of all ancestors of set of terms
+Get set of terms containing all ancestors of terms in a given set
 }
 \examples{
 data(hpo)
