@@ -17,17 +17,11 @@ knitr::opts_chunk$set(dev="svg", fig.width=7, fig.height=5, dev="svg", fig.align
 * `ontologySimilarity`, for computing semantic similarity between ontological terms and annotations, 
 * `ontologyPlot` for visualising sets of ontological terms with various graphical options. 
 
-The functionality of the `ontologyIndex` package is centered around `ontology_index` objects: simple R representations of ontologies consisting of `list`s and `vector`s of term properties (ID, label, etc.) which are named by term so that simple look-ups by term can be performed. Ontologies encoded in OBO or OWL format can be read into R using the function `get_ontology`, or created explicitly using the function `ontology_index`. The minimum requirement for creating an `ontology_index` object is that each term should have an ID, a label and a set of parents/superclasses (possibly empty). The package comes with three such ready-made `ontology_index` objects: `hpo`, `mpo` and `go`, encapsulating the Human Phenotype Ontology (HPO), Mammalian Phenotype Ontology (MPO) and Gene Ontology (GO) respectively, each loadable with `data`. Here we'll demonstrate the package using the HPO.
+The functionality of the `ontologyIndex` package is centered around `ontology_index` objects: simple R representations of ontologies as `list`s and `vector`s of term properties (ID, label, etc.) which are named by term so that simple look-ups by term can be performed. Ontologies encoded in OBO format can be read into R as `ontology_index`es using the function `get_ontology` (see the vignette 'Creating an ontology_index'). Ontologies in OWL syntax can be converted to OBO format using freely available software (e.g. the ROBOT command line tool: https://github.com/ontodev/robot). The package comes with three such ready-made `ontology_index` objects: `hpo`, `mpo` and `go`, encapsulating the Human Phenotype Ontology (HPO), Mammalian Phenotype Ontology (MPO) and Gene Ontology (GO) respectively, each loadable with `data`. Here we'll demonstrate the package using the HPO.
 
 ```{r}
 library(ontologyIndex)
 data(hpo)
-```
-
-Note: to use an up-to-date version of a given ontology, download the relevant `.obo` or `.owl` file and read it into R using the function `get_ontology`:
-
-```{r eval=FALSE}
-ontology <- get_ontology(file)
 ```
 
 The `ontology_index` object is just a list of 'vectors and lists' of term properties, indexed by the IDs of the terms:
@@ -36,7 +30,9 @@ The `ontology_index` object is just a list of 'vectors and lists' of term proper
 data.frame(property=names(hpo), class=sapply(hpo, class), stringsAsFactors=FALSE, row.names=NULL)
 ```
 
-The 'special' term properties, which all `ontology_index` objects contain, are `id`, `name`, `parents`, `children` and `ancestors`. These are the properties which the functions in the `ontologyIndex` package operate on - however, additional properties per term - custom properties, or whichever properties are contained in the original file - can also be read in and queried in the same way (see the vignette 'Creating an ontology_index'). Custom functions which operate on additional properties can also be defined. The `children` and `ancestors` properties are based on propagating the `parent` relationships for each node. If reading an ontology from a file, the definition of the `parents` of each term can be defined as desired - for instance it could reflect `is_a`/'superclass' relationships, or `part_of` relationships, or both (see 'Creating an ontology_index' and `?get_ontology` for more details).
+The properties which all `ontology_index` objects contain are `id`, `name`, `parents`, `children` and `ancestors` as these are the properties which the functions in the `ontologyIndex` package operate on. However, additional properties per term - for example custom annotation, or whatever terms are tagged with in the original OBO file - can also be read in and queried in the same way (see the vignette 'Creating an ontology_index'). 
+
+The `children` and `ancestors` properties are determined by the `parent` property, with the `ancestors` of a term derived by propagating the 'is parent' relation (i.e. with the terms for which the relation holds given in the `parent` property). When reading an `ontology_index` from an OBO file, the 'is parent' relation defaults to "is_a". However, this can be set to any relation or combination of relations (e.g. "part_of" or both "is_a" and "part_of" - see 'Creating an ontology_index' and `?get_ontology` for more details). Usage of phrases involving 'ancestors' and 'descendants' of terms in this document and in the names of functions exported by the package refer to the hierarchy determined by this `parent` property.
 
 You can use the function `get_term_property` to query the `ontology_index` object, and retrieve a particular attribute for a single term. For instance:
 ```{r}
@@ -65,7 +61,7 @@ hpo$name[minimal]
 
 ## Finding all ancestors of a set of terms
 
-To find all the ancestors of a set of terms, i.e. all the terms which are an ancestor of any term in the given set, on can use the `get_ancestors` function:
+To find all the ancestors of a set of terms, i.e. all the terms which are an ancestor of any term in the given set, one can use the `get_ancestors` function:
 ```{r}
 get_ancestors(hpo, c("HP:0001873", "HP:0011877"))
 ```
@@ -95,7 +91,7 @@ for (i in seq_along(fns)) plot(cex.main=0.8, main=names(fns)[i], onto_plot(ontol
 par(mfrow=c(1,1))
 ```
 
-For more details see the help file for the individual functions, e.g. `?exclude_descendants`. Note that to perform analagous operations with respect to sets of ancestors, one can use the `get_ancestors` function in conjunction with the base R set functions, e.g. `setdiff` and `intersect`.
+For more details see the help page for the individual functions, e.g. `?exclude_descendants`. Note that to perform analagous operations with respect to sets of ancestors, one can use the `get_ancestors` function in conjunction with the base R set functions, e.g. `setdiff` and `intersect`.
 
 ## Additional ontological functionality
 

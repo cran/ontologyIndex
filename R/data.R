@@ -30,18 +30,32 @@ ancs_from_pars <- function(pars, chld) {
 
 #' Create \code{ontology_index} object from vectors and lists of term properties
 #'
-#' @param id Character vector of term IDs.
-#' @param name Character vector of term labels.
 #' @param parents List of character vectors of parents per term.
-#' @template remove_missing
+#' @param id Character vector of term IDs. Defaults to the \code{"names"} attribute of the \code{parents} argument and must be the same length as \code{parents}.
+#' @param name Character vector of term labels.
 #' @param obsolete Logical vector indicating whether given terms are obsolete.
 #' @param version Version information about the ontology.
-#' @param ... Additional arguments, each of which should be either a vector or list of term properties. 
-ontology_index <- function(id, name, parents, remove_missing=FALSE, obsolete=setNames(nm=id, rep(FALSE, length(id))), version=NULL, ...) {
+#' @param ... Additional arguments, each of which should be either a vector or list of term properties, each with the same length as \code{id}. 
+#' @export
+#' @examples
+#' animal_superclasses <- list(animal=character(0), mammal="animal", cat="mammal", fish="animal")
+#' animal_ontology <- ontology_index(parents=animal_superclasses)
+#' unclass(animal_ontology)
+ontology_index <- function(parents, id=names(parents), name=id, obsolete=setNames(nm=id, rep(FALSE, length(id))), version=NULL, ...) {
+	if (is.null(id))
+		stop("Must give non-NULL term IDs: either as 'id' argument or as the names of the 'parents' argument")
+	if (!is.character(id))
+		stop("'id' argument must be of class 'character'")
+
 	if (!((is.null(names(parents)) & length(parents) == length(id)) | identical(names(parents), id))) {
 		stop("`parents` argument must have names attribute identical to `id` argument or be the same length")
 	}
-	if (remove_missing) parents <- lapply(parents, intersect, id)
+	missing_terms <- setdiff(unlist(use.names=FALSE, parents), id)
+	if (length(missing_terms) > 0) {
+		warning(paste0("Some parent terms not found: ", paste0(collapse=", ", missing_terms[seq(min(length(missing_terms), 3))]), if (length(missing_terms) > 3) paste0(" (", length(missing_terms)-3, " more)") else ""))
+		parents <- lapply(parents, intersect, id)
+	}
+
 	children <- c(
 		lapply(FUN=as.character, X=split(
 			unlist(use.names=FALSE, rep(id, times=sapply(parents, length))),
@@ -52,208 +66,90 @@ ontology_index <- function(id, name, parents, remove_missing=FALSE, obsolete=set
 	structure(lapply(FUN=setNames, nm=id, X=list(id=id, name=name, parents=parents, children=children, ancestors=str_ancs_from_pars(id, unname(parents), unname(children)), obsolete=obsolete, ...)), class="ontology_index", version=version)
 }
 
-#' Read ontology from obo file into R
+term_regexp <- "^\\[(Term|Typedef|Instance)\\]"
+tag_regexp <- "^(relationship: )?([^ \t]*[^:]):?\\s+(.+)"
+
+#' Get names of relations used in OBO file
 #'
-#' Reads an ontology from a file in either an OBO or OWL format into R as an \code{ontology_index} object.
-#'
-#' @param file File path of obo file
-#' @param ... Additional arguments to pass onto \code{\link{get_OWL}} or \code{\link{get_OBO}}.
-#' @return R-Object (list) representing ontology
+#' @param file File path of OBO formatted file.
 #' @export
-#' @importFrom stats setNames
-#' @seealso \code{\link{get_OWL}} \code{\link{get_OBO}}
-get_ontology <- function(file, ...) {
-	if (length(file) != 1)
-		stop("Pass character vector of length 1 as file argument")
-	if (toupper(substr(file, nchar(file)-3, nchar(file))) == ".OWL")
-		get_OWL(file, ...)
-	else
-		get_OBO(file, ...)
+#' @seealso \code{\link{get_ontology}}
+get_relation_names <- function(file) {
+	lines <- grep(value=TRUE, pattern=tag_regexp, x=readLines(file))
+	parts <- regmatches(x=lines, regexec(text=lines, pattern=tag_regexp))
+	relation <- !sapply(parts, "[", 2) == ""
+	c(intersect("is_a", unique(sapply(parts[!relation], "[", 3))), unique(sapply(parts[relation], "[", 3)))
 }
 
 #' Read ontology from OBO file into R
 #'
-#' @param file File path of obo file.
-#' @param term_regexp Regular expression for which designates the beginning of the specification of a new term in the OBO file. See \code{\link{grep}} for details on formatting the expression.
-#' @param id Regular expression for matching term IDs.
-#' @param name Regular expression for matching human readable term labels. 
-#' @param parents Regular expression for matching against parents for each term. 
-#' @param obsolete Regular expression for extracting whether terms are obsolete.
-#' @template remove_missing
-#' @param ... Additional functions for extracting properties of individual nodes. Arguments should be named (such that the name of the argument becomes the name of the slot in the resulting \code{ontology_index} object), and character vectors of length 1 or 2: the first element being a regular expression, the second specifying the \code{"mode"} of the array to become the property in the returned index (see the \code{"mode"} argument of \code{\link{vector}} for more details).
+#' @param file File path of OBO formatted file.
+#' @param propagate_relationships Character vector of relations 
+#' @param extract_tags Character value: either "minimal" or "everything", determining whether to extract only the properties of terms which are required to run functions in the package - i.e. \code{"id", "name", "parents", "children"} and \code{"ancestors"} - or extract all properties provided in the file. Defaults to \code{"minimal"}.
 #' @return \code{ontology_index} object.
 #' @export
+#' @seealso \code{\link{get_relation_names}}
 #' @importFrom stats setNames
-get_OBO <- function(
+get_ontology <- function(
 	file, 
-	term_regexp="^\\[(Term|Typedef)\\]", 
-	id="^id: ([^ !]+).*",
-	name="^name: (\\.*)",
-	parents=c("^is_a: ([^ !]+).*", "list"),
-	obsolete=c("^is_obsolete: (true)","logical"),
-	remove_missing=FALSE,
-	...
+	propagate_relationships="is_a",
+	extract_tags="minimal"
 ) {
-	lines <- readLines(file)
+	if (!extract_tags %in% c("minimal", "everything"))
+		stop("'extract_tags' argument should be equal to either 'minimal' or 'everything'")
+
+	minimal <- extract_tags == "minimal"
+
+	raw_lines <- readLines(file)
+	#remove comments and trailing modifiers
+	m <- regexpr(text=raw_lines, pattern="^([^!{]+[^!{ \t])")
+	lines <- regmatches(x=raw_lines, m=m)
 
 	term_lines <- grep(pattern=term_regexp, x=lines)
+	if (length(term_lines) == 0) stop("No terms detected in ontology source")
 
-	property_patterns <- list(id=id, name=name, parents=parents, obsolete=obsolete, ...)
+	tagged_lines <- grep(pattern=tag_regexp, x=lines)
 
-	properties <- lapply(property_patterns, function(p) { sel <- grep(x=lines, pattern=p[1]); out <- unname(as.vector(mode=if (length(p) > 1) p[2] else "character", x=split(sub(p[1], "\\1", lines[sel]), cut(sel, breaks=c(term_lines, Inf), labels=seq(length(term_lines)))))); if (length(p) > 1) { if (p[2] == "logical") !is.na(out) & out else out } else { out } })
-	do.call(what=ontology_index, c(list(remove_missing=remove_missing, version=lines[seq(11)]), properties))
+	tag_matches <- regmatches(x=lines[tagged_lines], regexec(text=lines[tagged_lines], pattern=tag_regexp))
+	tags <- sapply(tag_matches, "[", 3)
+	values <- sapply(tag_matches, "[", 4)
+
+	all_present_tag_types <- unique(tags)
+	use_tags <- if (minimal) intersect(c("id", "name", "is_obsolete"), all_present_tag_types) else all_present_tag_types
+
+	propagate_lines <- which(tags %in% propagate_relationships)
+
+	parents <- unname(lapply(FUN=unique, split(values[propagate_lines], cut(tagged_lines[propagate_lines], breaks=c(term_lines, Inf), labels=seq(length(term_lines))))))
+
+	tag_lines <- which(tags %in% use_tags)
+
+	properties <- mapply(
+		SIMPLIFY=FALSE,
+		FUN=function(vals, lns) {
+			unname(split(vals, cut(lns, breaks=c(term_lines, Inf), labels=seq(length(term_lines)))))
+		},
+		split(values[tag_lines], tags[tag_lines]),
+		split(tagged_lines[tag_lines], tags[tag_lines])
+	)
+
+	simplify <- intersect(names(properties), c("id", "name", "def", "comment", "is_obsolete", "created_by", "creation_date"))
+	properties[simplify] <- lapply(properties[simplify], function(lst) sapply(lst, "[", 1))
+
+	do.call(
+		what=ontology_index, 
+		c(
+			list(
+				version=substr(lines[seq(term_lines[1]-1)], 1, 1000),
+				parents=parents,
+				id=properties[["id"]],
+				name=properties[["name"]],
+				obsolete=if ("is_obsolete" %in% names(properties)) (!is.na(properties[["is_obsolete"]])) & properties[["is_obsolete"]] == "true" else rep(FALSE, length(properties[["id"]]))),
+			properties[-which(names(properties) %in% c("id","name","is_obsolete"))]))
 }
 
-#' @title Create lists of attributes per node in OWL file 
-#' @rdname owl_list_attributes
-#' @name OWL_list_attributes
-#' @param nodes \code{xml_nodeset} object where nodes correspond to ontological terms.
-#' @param xpath XPath expression.
-#' @param attribute Name of attribute to extract for selected nodes.
-#' @seealso \code{\link{OWL_strings_from_nodes}}
-#' @description \code{\link{OWL_is_a}}, \code{\link{OWL_part_of}} and \code{\link{OWL_is_a_and_part_of}} return lists of attributes for ontological terms represented as a \code{xml_nodeset} (see \code{xml2} package for more details on \code{xml_nodesets}). \code{\link{OWL_is_a}} returns the superclass/`is a' term IDs for each node in the given nodes, and is the default value of the \code{parents} argument in the \code{\link{get_OWL}} function. \code{\link{OWL_list_attributes_per_node}} returns a function for extracting lists of attributes of subnodes for each node in a \code{xml_nodeset}. It accepts an XPath expression for selecting the subnodes of each node in the returned function's \code{nodes} argument, and an attribute name argument for specifying which attribute should be extracted for each one. The returned function should be suitable for use as a parameter to the \code{\link{get_OWL}} function.
-NULL
-
-#' @rdname owl_list_attributes
 #' @export
-OWL_list_attributes_per_node <- function(xpath, attribute) {
-	force(xpath)
-	force(attribute)
-	function(nodes) {
-		par_node <- xpath; par_count <- paste0("count(", par_node, ")"); split(xml2::xml_attr(x=xml2::xml_find_all(x=nodes, xpath=par_node), attr=attribute, ns=xml2::xml_ns(nodes)), factor(rep(seq_along(nodes), times=xml2::xml_find_num(x=nodes, xpath=par_count)), levels=seq_along(nodes)))
-	}
-}
-
-#' @rdname owl_list_attributes
-#' @export
-OWL_is_a <- OWL_list_attributes_per_node(xpath="rdfs:subClassOf[@rdf:resource]", attribute="rdf:resource")
-
-#' @rdname owl_list_attributes
-#' @export
-OWL_part_of <- OWL_list_attributes_per_node(xpath="rdfs:subClassOf/owl:Restriction/owl:onProperty[@rdf:resource='http://purl.obolibrary.org/obo/BFO_0000050']/../owl:someValuesFrom", attribute="rdf:resource")
-
-#' @rdname owl_list_attributes
-#' @export
-OWL_is_a_and_part_of <- function(nodes) lapply(FUN=unique, mapply(SIMPLIFY=FALSE, FUN=c, OWL_is_a(nodes), OWL_part_of(nodes)))
-
-#' @title Get vectors of term properties from set of OWL nodes 
-#' @rdname owl_properties
-#' @name OWL_properties
-#' @param nodes \code{xml_nodeset} object where nodes correspond to ontological terms.
-#' @param xpath XPath expression.
-#' @description Functions which return vectors of properties for OWL formatted ontological terms represented as \code{xml_nodeset}s. \code{\link{OWL_strings_from_nodes}} accepts an XPath expression (a \code{character} vector of length 1) and returns the string value of the XPath expression evaluated for each node (i.e. for each term in the ontology). One can use \code{\link{OWL_list_attributes_per_node}} to create functions for extracting lists of term attributes for each node of encoded in the OWL file. 
-#' @seealso \code{\link{OWL_list_attributes_per_node}}
-NULL
-
-#' @export
-#' @rdname owl_properties
-OWL_strings_from_nodes <- function(xpath) {
-	force(xpath)
-	function(nodes) xml2::xml_find_chr(x=nodes, xpath=xpath)
-}
-
-#' @export 
-#' @rdname owl_properties
-OWL_IDs <- OWL_strings_from_nodes("string(@rdf:about)")
-
-#' @export
-#' @rdname owl_properties
-OWL_labels <- OWL_strings_from_nodes("string(rdfs:label)")
-
-#' @export
-#' @rdname owl_properties
-OWL_obsolete <- function(nodes) xml2::xml_find_chr(x=nodes, xpath="string(owl:deprecated)") == "true"
-
-#' Read ontology as \code{ontology_index} from OWL format file
-#'
-#' @param file Name of OWL formatted file.
-#' @param class_xpath XPath expression for selecting the nodes corresponding to terms in the ontology.
-#' @param id Function for pulling term IDs out of a \code{nodeset} object.
-#' @param name Function for pulling term labels out of a \code{nodeset} object. 
-#' @param parents Function for selecting term parent IDs from for each term in a \code{nodeset} object. Defaults to \code{\link{OWL_is_a}}.
-#' @param obsolete Function for selecting indicator of obsolescence for each term.
-#' @param version_xpath XPath expression for selecting node which contains version information.
-#' @template remove_missing
-#' @param ... Additional (named) arguments, each a function accepting a \code{nodeset} object as an argument and each returning an array of values corresponding to the terms of the ontology.
-#' @return \code{ontology_index} object.
-#' @export
-get_OWL <- function(
-	file, 
-	class_xpath="owl:Class[@rdf:about]", 
-	id=OWL_IDs,
-	name=OWL_labels,
-	parents=OWL_is_a,
-	obsolete=OWL_obsolete,
-	version_xpath="owl:Ontology",
-	remove_missing=FALSE,
-	...
-) {
-	if (!requireNamespace("xml2", quietly = TRUE)) {
-		stop("Please install the 'xml2' package to use this function.",
-		  call. = FALSE)
-	}
-	funcs <- list(id=id, name=name, parents=parents, obsolete=obsolete, ...)
-	doc <- xml2::read_xml(file)
-	ns <- xml2::xml_ns(doc)
-	classes <- xml2::xml_find_all(x=doc, ns=ns, xpath=class_xpath)
-	properties <- lapply(funcs, function(f) unname(f(classes)))
-	version_nodes <- xml2::xml_children(xml2::xml_find_first(x=doc, xpath="owl:Ontology", ns=ns))
-	version_text <- xml2::xml_text(version_nodes)
-	version <- paste0(xml2::xml_name(version_nodes),": ", version_text)[nchar(version_text) > 0]
-	do.call(what=ontology_index, c(list(remove_missing=remove_missing, version=version), properties))
-}
-
-#' Get frequency of each term in a set of phenotypes
-#'
-#' @template ontology
-#' @template term_sets
-#' @param patch_missing Logical indicating whether to include whole ontology even if they're not present in the \code{term_sets} as if they had occurred once
-#' @return Numeric vector of information contents, named by corresponding terms. Takes into account ancestors, in the sense that all ancestor terms implied by the phenotypes are considered 'on'
-#' @seealso \code{\link{get_term_info_content}}
-#' @examples
-#' data(hpo)
-#' get_term_frequencies(hpo, list("HP:0001873"))
-#' @export
-get_term_frequencies <- function(
-	ontology, 
-	term_sets,
-	patch_missing=FALSE
-) {
-	exp(-get_term_info_content(ontology, term_sets, patch_missing=FALSE))
-}
-
-#' Get information content of each term in a set of phenotypes
-#'
-#' @template ontology
-#' @template term_sets
-#' @param patch_missing Logical indicating whether to include all ontology terms even if they're not present in the \code{term_sets} as if they had occurred once
-#' @return Numeric vector of information contents, named by corresponding terms. Takes into account ancestors, in the sense that all ancestor terms implied by the phenotypes are considered 'on'
-#' @examples
-#' data(hpo)
-#' get_term_info_content(hpo, list("HP:0001873"))
-#' @export
-get_term_info_content <- function(
-	ontology, 
-	term_sets,
-	patch_missing=FALSE
-) {
-	terms.tab <- table(unlist(use.names=FALSE, lapply(term_sets, function(x) get_ancestors(ontology, x))))
-	total.patients <- length(term_sets)
-	terms.numeric <- as.numeric(terms.tab)
-	names(terms.numeric) <- names(terms.tab)
-
-	result <- log(total.patients) - ifelse(terms.numeric==0, log(total.patients), log(terms.numeric))
-	
-	if (patch_missing) {
-		#include missing terms and give max information content...
-		missing.terms <- setdiff(ontology$id, names(result))
-		missing.infos <- rep(max(result), length(missing.terms))
-		names(missing.infos) <- missing.terms
-		result <- c(result, missing.infos) 
-	}
-
-	result
-}
+#' @rdname get_ontology
+get_OBO <- get_ontology
 
 #' \code{ontology_index} object encapsulating structure of the Gene Ontology (HPO) comprising a \code{list} of lists/vectors of properties of GO terms indexed by term ID
 #' 

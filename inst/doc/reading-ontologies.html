@@ -12,7 +12,7 @@
 
 <meta name="author" content="Daniel Greene" />
 
-<meta name="date" content="2016-10-27" />
+<meta name="date" content="2016-11-23" />
 
 <title>Creating an ontology_index</title>
 
@@ -52,39 +52,100 @@ code > span.er { color: #ff0000; font-weight: bold; }
 
 <h1 class="title toc-ignore">Creating an <code>ontology_index</code></h1>
 <h4 class="author"><em>Daniel Greene</em></h4>
-<h4 class="date"><em>2016-10-27</em></h4>
+<h4 class="date"><em>2016-11-23</em></h4>
 
 
 
-<p>An <code>ontology_index</code> can be created by loading a pre-existing one - for example by calling <code>data(hpo)</code>, reading ontologies encoded in OBO or OWL format into R using <code>get_ontology</code>, or by calling the function <code>ontology_index</code> explicitly. An <code>ontology_index</code> is a named <code>list</code> of properties for each term, where each property is represented by a <code>list</code> or <code>vector</code> named by term (thus lookups by term name are simple). All <code>ontology_index</code> objects contain the <code>id</code>, <code>name</code>, <code>parents</code>, <code>children</code> and <code>ancestors</code> for each term, however additional properties can be added. For details on how to use an <code>ontology_index</code>, see the ‘Introduction to ontologyX’ vignette.</p>
-<div id="reading-in-from-a-file" class="section level2">
-<h2>Reading in from a file</h2>
-<p>The functions <code>get_OBO</code>, <code>get_OWL</code> and <code>get_ontology</code> can read ontologies into R as <code>ontology_index</code> objects, the latter determining which function to call based on the file name. By default, the properties <code>id</code>, <code>name</code>, <code>parents</code>, <code>children</code>, <code>ancestors</code> and <code>obsolete</code> are populated.</p>
-<p><em>Note: the <code>xml2</code> package is required in order to read ontologies encoded in OWL format.</em></p>
-<p>The syntax is simple:</p>
+<p>An <code>ontology_index</code> can be obtained by loading a pre-existing one - for example by calling <code>data(hpo)</code>, reading ontologies encoded in OBO format into R using the function <code>get_ontology</code>, or by calling the function <code>ontology_index</code> explicitly. An <code>ontology_index</code> is a named <code>list</code> of properties for each term, where each property is represented by a <code>list</code> or <code>vector</code>. Each of these property lists is named by term, facilitating simple lookups of properties by term name. All valid <code>ontology_index</code> objects contain <code>id</code>, <code>name</code>, <code>parents</code>, <code>children</code> and <code>ancestors</code> properties for each term. Additional properties can be added to an <code>ontology_index</code>, although they are not required by functions in the package. For details on how to use an <code>ontology_index</code>, see the ‘Introduction to ontologyX’ vignette.</p>
+<div id="reading-in-an-obo-file" class="section level2">
+<h2>Reading in an OBO file</h2>
+<p>The function <code>get_ontology</code> can read ontologies encoded in OBO format into R as <code>ontology_index</code> objects. By default, the properties <code>id</code>, <code>name</code>, <code>obsolete</code>, <code>parents</code>, <code>children</code> and <code>ancestors</code> are populated.</p>
+<p>To call the function:</p>
 <pre class="sourceCode r"><code class="sourceCode r">ontology &lt;-<span class="st"> </span><span class="kw">get_ontology</span>(file)</code></pre>
-<p>Additional information is often present in the original files - for example definitions (the <code>def</code> field in OBO format) and <code>part_of</code> relationships to other terms. It is possible to include these extra properties by passing additional arguments to <code>get_ontology</code> or <code>get_OBO</code>/<code>get_OWL</code> as appropriate. The given name of the additional arguments then go on to form the names of the properties included in the returned <code>ontology_index</code>, and the format of the arguments depends on whether you are reading an OBO or OWL formatted file.</p>
-<p>For OBO files, these arguments should be character vectors where the first element is a regular expression specifying what text to extract as the property and the second element giving the mode of the returned array (defaulting to <code>character</code>, but potentially also taking the values <code>logical</code>,<code>numeric</code>,<code>list</code>, etc.). Here for example, we additionally extract the <code>&quot;definition&quot;</code> field for each term:</p>
-<pre class="sourceCode r"><code class="sourceCode r">ontology &lt;-<span class="st"> </span><span class="kw">get_OBO</span>(file, <span class="dt">definition=</span><span class="kw">c</span>(<span class="st">&quot;^def: (</span><span class="ch">\\</span><span class="st">.*)&quot;</span>, <span class="st">&quot;character&quot;</span>))</code></pre>
-<p>Now, <code>ontology</code> will have the <code>ontology$definition</code> field, a character vector (named by term as usual) populated, in addition to the standard properties. Thus, definitions can be extracted simply using <code>ontology$definition[termID]</code>.</p>
-<p>For OWL files the additional arguments should be functions which given an <code>xml_nodeset</code> (see the <code>xml2</code> package), corresponding to all the terms in the ontology, return lists or vectors of term properties. A selection of such functions are included with the package, including <code>OWL_IDs</code>, <code>OWL_labels</code>, <code>OWL_obsolete</code> and <code>OWL_is_a</code>. The following expressions can be used to load <code>ontology_index</code>es with the <code>part_of</code> relationship populated from OWL formatted ontologies:</p>
-<pre class="sourceCode r"><code class="sourceCode r">ontology &lt;-<span class="st"> </span><span class="kw">get_OWL</span>(file, <span class="dt">part_of=</span>OWL_part_of)</code></pre>
-<p>Here, <code>OWL_part_of</code> is a function which returns a list of <code>character</code> vectors containing the <code>part_of</code> relationships for each term. Customs functions based on XPath expressions can be defined if other term properties are desired, see <code>?OWL_strings_from_nodes</code> for details.</p>
-<p>By default, if there are terms in parent-offspring relationships specified by the ontology which are missing, an error is thrown. However, the ontology reading functions <code>get_ontology</code>, <code>get_OWL</code> and <code>get_OBO</code> have a <code>remove_missing</code> argument (<code>FALSE</code> by default), which causes parent-offspring relationships with a missing term to be ignored, hence the complete parts of the ontology can still be used.</p>
-<p>When reading ontologies from OWL files, the term IDs are often given as URLs:</p>
-<p><code>&quot;http://purl.obolibrary.org/obo/&lt;ontology code&gt;_&lt;number&gt;&quot;</code>,</p>
-<p>and thus the term IDs stored by the <code>ontology_index</code> object obtained with <code>get_OWL</code> will also be in this form. However, data is often supplied with the OBO ID format: <code>&lt;ontology code&gt;:&lt;number&gt;</code>. Possible solutions to making such data compatible with the ontologyX packages are to transform the term IDs in the data to the OWL format (i.e. to match the index) or transform the <code>ontology_index</code> object itself (to match the data, so that it’s IDs are in OBO style). The former is simpler and can be done by <code>paste</code>ing data strings onto the appropriate URL and replacing the underscore with a colon. The latter can be done with the help of regular expressions, for example as demonstrated below, by looping over the properties in the <code>ontology_index</code>, and transforming them as appropriate depending on whether they are lists or vectors:</p>
-<pre class="sourceCode r"><code class="sourceCode r">term_url &lt;-<span class="st"> &quot;http://purl.obolibrary.org/obo/(</span><span class="ch">\\</span><span class="st">w+)_(</span><span class="ch">\\</span><span class="st">d+)&quot;</span>
-for (property in <span class="kw">names</span>(ontology)) {
-    if (<span class="kw">is.character</span>(<span class="kw">unlist</span>(<span class="dt">use.names=</span><span class="ot">FALSE</span>, ontology[[property]]))) ontology[[property]] &lt;-<span class="st"> </span>if (<span class="kw">is.list</span>(ontology[[property]])) <span class="kw">lapply</span>(ontology[[property]], function(term_properties) <span class="kw">gsub</span>(<span class="dt">x=</span>term_properties, <span class="dt">pattern=</span>term_url, <span class="dt">replacement=</span><span class="st">&quot;</span><span class="ch">\\</span><span class="st">1:</span><span class="ch">\\</span><span class="st">2&quot;</span>)) else <span class="kw">gsub</span>(<span class="dt">x=</span>ontology[[property]], <span class="dt">pattern=</span>term_url, <span class="dt">replacement=</span><span class="st">&quot;</span><span class="ch">\\</span><span class="st">1:</span><span class="ch">\\</span><span class="st">2&quot;</span>)
-    <span class="kw">names</span>(ontology[[property]]) &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="dt">x=</span><span class="kw">names</span>(ontology[[property]]), <span class="dt">pattern=</span>term_url, <span class="dt">replacement=</span><span class="st">&quot;</span><span class="ch">\\</span><span class="st">1:</span><span class="ch">\\</span><span class="st">2&quot;</span>)
-}</code></pre>
+<p>The properties <code>parents</code>, <code>children</code> and <code>ancestors</code> are determined by a given set of relations between terms: the <code>propagate_relationships</code> argument (“is_a” by default). Thus the <code>parents</code> of a term are set of terms to which it is related by any type of relation contained in <code>propagate_relationships</code>; the <code>children</code> are those terms related by the inverse relations and <code>ancestors</code> are those obtained by propagating the <code>propagate_relationships</code> relations (note: the resulting set includes the term itself).</p>
+<pre class="sourceCode r"><code class="sourceCode r">ontology &lt;-<span class="st"> </span><span class="kw">get_ontology</span>(file, <span class="dt">propagate_relationships=</span><span class="kw">c</span>(<span class="st">&quot;is_a&quot;</span>, <span class="st">&quot;part_of&quot;</span>))</code></pre>
+<p>The relations given in the <code>propagate_relationships</code> argument should be named as they are labelled in the OBO file. In order to see a complete list of relations used in an OBO file, pass the file’s path to the function <code>get_relation_names</code>. E.g. for the gene ontology:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_relation_names</span>(<span class="st">&quot;go.obo&quot;</span>)</code></pre>
+<pre><code>## [1] &quot;is_a&quot;                 &quot;regulates&quot;            &quot;part_of&quot;             
+## [4] &quot;has_part&quot;             &quot;happens_during&quot;       &quot;negatively_regulates&quot;
+## [7] &quot;positively_regulates&quot; &quot;occurs_in&quot;            &quot;ends_during&quot;</code></pre>
+<p>Additional information is often present in the original file - for example definitions, labelled by the <code>def</code> tag in OBO format. <code>get_ontology</code> decides which properties to export based on the <code>extract_tags</code> argument. By default <code>extract_tags=&quot;minimal&quot;</code>, resulting in only the properties <code>id</code>, <code>name</code>, <code>obsolete</code>, <code>parents</code>, <code>children</code> and <code>ancestors</code> being exported. It is possible to include all properties given in the file by setting <code>extract_tags=&quot;everything&quot;</code>. The names of the properties included in the returned <code>ontology_index</code> are then the same as the names of the tags in OBO format.</p>
+<pre class="sourceCode r"><code class="sourceCode r">ontology &lt;-<span class="st"> </span><span class="kw">get_OBO</span>(file, <span class="dt">extract_tags=</span><span class="st">&quot;everything&quot;</span>)</code></pre>
+<p>All properties are stored in the returned <code>ontology_index</code> as lists, except for the following, which are coerced to <code>character</code> or <code>logical</code> vectors as appropriate: <code>&quot;id&quot;, &quot;name&quot;, &quot;def&quot;, &quot;comment&quot;, &quot;obsolete&quot;, &quot;created_by&quot;, &quot;creation_date&quot;</code>.</p>
+<p>Further properties can be mapped to vectors if required, modifying the returned <code>ontology_index</code> as a list, e.g.</p>
+<pre class="sourceCode r"><code class="sourceCode r">ontology$property &lt;-<span class="st"> </span><span class="kw">simplify2array</span>(ontology$property)</code></pre>
 </div>
 <div id="adding-term-properties" class="section level2">
 <h2>Adding term properties</h2>
-<p>Modifying an existing <code>ontology_index</code> to add term properties is as simple as modifying a list. In the example below, we’ll add the number of children for each term.</p>
+<p>Modifying an existing <code>ontology_index</code> to add term properties is the same as adding to a <code>list</code> or <code>data.frame</code>. In the example below, we add the number of children for each term:</p>
 <pre class="sourceCode r"><code class="sourceCode r">ontology$number_of_children &lt;-<span class="st"> </span><span class="kw">sapply</span>(ontology$children, length)</code></pre>
 <p>In the same manner, a valid <code>ontology_index</code> can be built up from scratch as a list, of course requiring that the standard properties are included for use with functions in <code>ontologyIndex</code>.</p>
+</div>
+<div id="converting-from-owl-to-obo-format" class="section level2">
+<h2>Converting from OWL to OBO format</h2>
+<p>In order to read in ontologies in OWL syntax, it is recommended to first convert to OBO format, for example using the ROBOT command line tool <a href="https://github.com/ontodev/robot">https://github.com/ontodev/robot</a>.</p>
+</div>
+<div id="creating-an-ontology_index-explicitly" class="section level2">
+<h2>Creating an <code>ontology_index</code> explicitly</h2>
+<p>The function <code>ontology_index</code> can be used to create an object with class <code>ontology_index</code>. This could be useful for instance if the user wished to convert a directed acyclic graph (DAG) with edges representing sub/super-class relationships into an <code>ontology_index</code>. It is similar to the function <code>data.frame</code>: it accepts a variable number of arguments corresponding to properties for ontological terms, which must each be a vector or list of the same length (except the <code>version</code> argument, which can be any object and should contain any information about the version of the ontology). The only mandatory argument is the <code>parents</code> argument, and should be a <code>list</code> of <code>character</code> vectors giving the IDs of the ‘parents’/‘superclasses’ of each term. The term IDs can either be supplied as the <code>names</code> attribute of the <code>parents</code> or as a separate <code>id</code> argument of the same length as <code>parents</code>. The human-readable term names can be passed as the <code>names</code> argument (defaults to the same as <code>id</code>). As usual the <code>children</code> and <code>ancestors</code> properties are derived from the <code>parents</code>. Warnings are generated if any IDs given in the <code>parents</code> argument are not in the <code>id</code> argument.</p>
+<p>A simple invocation:</p>
+<pre class="sourceCode r"><code class="sourceCode r">animal_superclasses &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">animal=</span><span class="kw">character</span>(<span class="dv">0</span>), <span class="dt">mammal=</span><span class="st">&quot;animal&quot;</span>, <span class="dt">cat=</span><span class="st">&quot;mammal&quot;</span>, <span class="dt">fish=</span><span class="st">&quot;animal&quot;</span>)
+animal_ontology &lt;-<span class="st"> </span><span class="kw">ontology_index</span>(<span class="dt">parents=</span>animal_superclasses)
+<span class="kw">unclass</span>(animal_ontology)</code></pre>
+<pre><code>## $id
+##   animal   mammal      cat     fish 
+## &quot;animal&quot; &quot;mammal&quot;    &quot;cat&quot;   &quot;fish&quot; 
+## 
+## $name
+##   animal   mammal      cat     fish 
+## &quot;animal&quot; &quot;mammal&quot;    &quot;cat&quot;   &quot;fish&quot; 
+## 
+## $parents
+## $parents$animal
+## character(0)
+## 
+## $parents$mammal
+## [1] &quot;animal&quot;
+## 
+## $parents$cat
+## [1] &quot;mammal&quot;
+## 
+## $parents$fish
+## [1] &quot;animal&quot;
+## 
+## 
+## $children
+## $children$animal
+## [1] &quot;mammal&quot; &quot;fish&quot;  
+## 
+## $children$mammal
+## [1] &quot;cat&quot;
+## 
+## $children$cat
+## character(0)
+## 
+## $children$fish
+## character(0)
+## 
+## 
+## $ancestors
+## $ancestors$animal
+## [1] &quot;animal&quot;
+## 
+## $ancestors$mammal
+## [1] &quot;animal&quot; &quot;mammal&quot;
+## 
+## $ancestors$cat
+## [1] &quot;animal&quot; &quot;mammal&quot; &quot;cat&quot;   
+## 
+## $ancestors$fish
+## [1] &quot;animal&quot; &quot;fish&quot;  
+## 
+## 
+## $obsolete
+## animal mammal    cat   fish 
+##  FALSE  FALSE  FALSE  FALSE</code></pre>
+<p>For more details, see the help page for the function, <code>?ontology_index</code>.</p>
 </div>
 
 

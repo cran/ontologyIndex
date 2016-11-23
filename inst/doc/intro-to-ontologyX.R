@@ -5,9 +5,6 @@ knitr::opts_chunk$set(dev="svg", fig.width=7, fig.height=5, dev="svg", fig.align
 library(ontologyIndex)
 data(hpo)
 
-## ----eval=FALSE----------------------------------------------------------
-#  ontology <- get_ontology(file)
-
 ## ---- echo=FALSE---------------------------------------------------------
 data.frame(property=names(hpo), class=sapply(hpo, class), stringsAsFactors=FALSE, row.names=NULL)
 

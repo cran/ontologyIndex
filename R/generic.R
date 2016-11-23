@@ -10,8 +10,8 @@ print.ontology_index <- function(x, ...) {
 	obs <- if (is.null(x$obsolete)) rep(FALSE, length(x$id)) else x$obsolete
 	cat("Ontology with ", sum(!obs), " terms\n", sep="")
 	version <- attr(x, "version", exact=TRUE)
-	if (!is.null(version)) print(version)
-	cat("Properties:\n")
+	if (!is.null(version)) cat("\n", paste0(collapse="", grep(x=version, pattern="^(format-version|data-version|default-namespace|ontology):", value=TRUE), "\n"), sep="")
+	cat("\nProperties:\n")
 	cat(paste0("\t", names(x), ": ", sapply(x, class), "\n"), sep="")
 	cat("Roots:\n")
 	roots <- x$id[!obs & sapply(x$parents, length) == 0]

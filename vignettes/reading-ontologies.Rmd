@@ -9,56 +9,49 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-An `ontology_index` can be created by loading a pre-existing one - for example by calling `data(hpo)`, reading ontologies encoded in OBO or OWL format into R using `get_ontology`, or by calling the function `ontology_index` explicitly. An `ontology_index` is a named `list` of properties for each term, where each property is represented by a `list` or `vector` named by term (thus lookups by term name are simple). All `ontology_index` objects contain the `id`, `name`, `parents`, `children` and `ancestors` for each term, however additional properties can be added. For details on how to use an `ontology_index`, see the 'Introduction to ontologyX' vignette.
+An `ontology_index` can be obtained by loading a pre-existing one - for example by calling `data(hpo)`, reading ontologies encoded in OBO format into R using the function `get_ontology`, or by calling the function `ontology_index` explicitly. An `ontology_index` is a named `list` of properties for each term, where each property is represented by a `list` or `vector`. Each of these property lists is named by term, facilitating simple lookups of properties by term name. All valid `ontology_index` objects contain `id`, `name`, `parents`, `children` and `ancestors` properties for each term. Additional properties can be added to an `ontology_index`, although they are not required by functions in the package. For details on how to use an `ontology_index`, see the 'Introduction to ontologyX' vignette.
 
-## Reading in from a file
+## Reading in an OBO file
 
-The functions `get_OBO`, `get_OWL` and `get_ontology` can read ontologies into R as `ontology_index` objects, the latter determining which function to call based on the file name. By default, the properties `id`, `name`, `parents`, `children`, `ancestors` and `obsolete` are populated. 
+The function `get_ontology` can read ontologies encoded in OBO format into R as `ontology_index` objects. By default, the properties `id`, `name`, `obsolete`, `parents`, `children` and `ancestors` are populated.
 
-*Note: the `xml2` package is required in order to read ontologies encoded in OWL format.*
-
-The syntax is simple:
+To call the function:
 ```{r eval=FALSE}
 ontology <- get_ontology(file)
 ```
 
-Additional information is often present in the original files - for example definitions (the `def` field in OBO format) and `part_of` relationships to other terms. It is possible to include these extra properties by passing additional arguments to `get_ontology` or `get_OBO`/`get_OWL` as appropriate. The given name of the additional arguments then go on to form the names of the properties included in the returned `ontology_index`, and the format of the arguments depends on whether you are reading an OBO or OWL formatted file. 
-
-For OBO files, these arguments should be character vectors where the first element is a regular expression specifying what text to extract as the property and the second element giving the mode of the returned array (defaulting to `character`, but potentially also taking the values `logical`,`numeric`,`list`, etc.). Here for example, we additionally extract the `"definition"` field for each term:
+The properties `parents`, `children` and `ancestors` are determined by a given set of relations between terms: the `propagate_relationships` argument ("is_a" by default). Thus the `parents` of a term are set of terms to which it is related by any type of relation contained in `propagate_relationships`; the `children` are those terms related by the inverse relations and `ancestors` are those obtained by propagating the `propagate_relationships` relations (note: the resulting set includes the term itself). 
 
 ```{r eval=FALSE}
-ontology <- get_OBO(file, definition=c("^def: (\\.*)", "character"))
+ontology <- get_ontology(file, propagate_relationships=c("is_a", "part_of"))
 ```
 
-Now, `ontology` will have the `ontology$definition` field, a character vector (named by term as usual) populated, in addition to the standard properties. Thus, definitions can be extracted simply using `ontology$definition[termID]`.
-
-For OWL files the additional arguments should be functions which given an `xml_nodeset` (see the `xml2` package), corresponding to all the terms in the ontology, return lists or vectors of term properties. A selection of such functions are included with the package, including `OWL_IDs`, `OWL_labels`, `OWL_obsolete` and `OWL_is_a`. The following expressions can be used to load `ontology_index`es with the `part_of` relationship populated from OWL formatted ontologies:
+The relations given in the `propagate_relationships` argument should be named as they are labelled in the OBO file. In order to see a complete list of relations used in an OBO file, pass the file's path to the function `get_relation_names`. E.g. for the gene ontology:
 
 ```{r eval=FALSE}
-ontology <- get_OWL(file, part_of=OWL_part_of)
+get_relation_names("go.obo")
+```
+```{r eval=TRUE, echo=FALSE}
+c("is_a", "regulates", "part_of", "has_part", "happens_during", "negatively_regulates", "positively_regulates", "occurs_in", "ends_during")
 ```
 
-Here, `OWL_part_of` is a function which returns a list of `character` vectors containing the `part_of` relationships for each term. Customs functions based on XPath expressions can be defined if other term properties are desired, see `?OWL_strings_from_nodes` for details.
-
-By default, if there are terms in parent-offspring relationships specified by the ontology which are missing, an error is thrown. However, the ontology reading functions `get_ontology`, `get_OWL` and `get_OBO` have a `remove_missing` argument (`FALSE` by default), which causes parent-offspring relationships with a missing term to be ignored, hence the complete parts of the ontology can still be used. 
-
-When reading ontologies from OWL files, the term IDs are often given as URLs: 
-
-`"http://purl.obolibrary.org/obo/<ontology code>_<number>"`, 
-
-and thus the term IDs stored by the `ontology_index` object obtained with `get_OWL` will also be in this form. However, data is often supplied with the OBO ID format: `<ontology code>:<number>`. Possible solutions to making such data compatible with the ontologyX packages are to transform the term IDs in the data to the OWL format (i.e. to match the index) or transform the `ontology_index` object itself (to match the data, so that it's IDs are in OBO style). The former is simpler and can be done by `paste`ing data strings onto the appropriate URL and replacing the underscore with a colon. The latter can be done with the help of regular expressions, for example as demonstrated below, by looping over the properties in the `ontology_index`, and transforming them as appropriate depending on whether they are lists or vectors:
+Additional information is often present in the original file - for example definitions, labelled by the `def` tag in OBO format. `get_ontology` decides which properties to export based on the `extract_tags` argument. By default `extract_tags="minimal"`, resulting in only the properties `id`, `name`, `obsolete`, `parents`, `children` and `ancestors` being exported. It is possible to include all properties given in the file by setting `extract_tags="everything"`. The names of the properties included in the returned `ontology_index` are then the same as the names of the tags in OBO format. 
 
 ```{r eval=FALSE}
-term_url <- "http://purl.obolibrary.org/obo/(\\w+)_(\\d+)"
-for (property in names(ontology)) {
-	if (is.character(unlist(use.names=FALSE, ontology[[property]]))) ontology[[property]] <- if (is.list(ontology[[property]])) lapply(ontology[[property]], function(term_properties) gsub(x=term_properties, pattern=term_url, replacement="\\1:\\2")) else gsub(x=ontology[[property]], pattern=term_url, replacement="\\1:\\2")
-	names(ontology[[property]]) <- gsub(x=names(ontology[[property]]), pattern=term_url, replacement="\\1:\\2")
-}
+ontology <- get_OBO(file, extract_tags="everything")
+```
+
+All properties are stored in the returned `ontology_index` as lists, except for the following, which are coerced to `character` or `logical` vectors as appropriate: `"id", "name", "def", "comment", "obsolete", "created_by", "creation_date"`.
+
+Further properties can be mapped to vectors if required, modifying the returned `ontology_index` as a list, e.g.
+
+```{r eval=FALSE}
+ontology$property <- simplify2array(ontology$property)
 ```
 
 ## Adding term properties
 
-Modifying an existing `ontology_index` to add term properties is as simple as modifying a list. In the example below, we'll add the number of children for each term.
+Modifying an existing `ontology_index` to add term properties is the same as adding to a `list` or `data.frame`. In the example below, we add the number of children for each term:
 
 ```{r eval=FALSE}
 ontology$number_of_children <- sapply(ontology$children, length)
@@ -66,4 +59,20 @@ ontology$number_of_children <- sapply(ontology$children, length)
 
 In the same manner, a valid `ontology_index` can be built up from scratch as a list, of course requiring that the standard properties are included for use with functions in `ontologyIndex`.
 
+## Converting from OWL to OBO format
 
+In order to read in ontologies in OWL syntax, it is recommended to first convert to OBO format, for example using the ROBOT command line tool https://github.com/ontodev/robot.
+
+## Creating an `ontology_index` explicitly
+
+The function `ontology_index` can be used to create an object with class `ontology_index`. This could be useful for instance if the user wished to convert a directed acyclic graph (DAG) with edges representing sub/super-class relationships into an `ontology_index`. It is similar to the function `data.frame`: it accepts a variable number of arguments corresponding to properties for ontological terms, which must each be a vector or list of the same length (except the `version` argument, which can be any object and should contain any information about the version of the ontology). The only mandatory argument is the `parents` argument, and should be a `list` of `character` vectors giving the IDs of the 'parents'/'superclasses' of each term. The term IDs can either be supplied as the `names` attribute of the `parents` or as a separate `id` argument of the same length as `parents`. The human-readable term names can be passed as the `names` argument (defaults to the same as `id`). As usual the `children` and `ancestors` properties are derived from the `parents`. Warnings are generated if any IDs given in the `parents` argument are not in the `id` argument. 
+
+A simple invocation:
+
+```{r eval=TRUE}
+animal_superclasses <- list(animal=character(0), mammal="animal", cat="mammal", fish="animal")
+animal_ontology <- ontology_index(parents=animal_superclasses)
+unclass(animal_ontology)
+```
+
+For more details, see the help page for the function, `?ontology_index`.

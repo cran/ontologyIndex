@@ -4,25 +4,28 @@
 \alias{ontology_index}
 \title{Create \code{ontology_index} object from vectors and lists of term properties}
 \usage{
-ontology_index(id, name, parents, remove_missing = FALSE,
+ontology_index(parents, id = names(parents), name = id,
   obsolete = setNames(nm = id, rep(FALSE, length(id))), version = NULL, ...)
 }
 \arguments{
-\item{id}{Character vector of term IDs.}
-
-\item{name}{Character vector of term labels.}
-
 \item{parents}{List of character vectors of parents per term.}
 
-\item{remove_missing}{Logical value determining whether the parents in parent-child relationships in the ontology should be removed from the index. If there are parents which are missing, failure to remove them will lead to an error.}
+\item{id}{Character vector of term IDs. Defaults to the \code{"names"} attribute of the \code{parents} argument and must be the same length as \code{parents}.}
+
+\item{name}{Character vector of term labels.}
 
 \item{obsolete}{Logical vector indicating whether given terms are obsolete.}
 
 \item{version}{Version information about the ontology.}
 
-\item{...}{Additional arguments, each of which should be either a vector or list of term properties.}
+\item{...}{Additional arguments, each of which should be either a vector or list of term properties, each with the same length as \code{id}.}
 }
 \description{
 Create \code{ontology_index} object from vectors and lists of term properties
+}
+\examples{
+animal_superclasses <- list(animal=character(0), mammal="animal", cat="mammal", fish="animal")
+animal_ontology <- ontology_index(parents=animal_superclasses)
+unclass(animal_ontology)
 }
 
