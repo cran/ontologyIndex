@@ -1,0 +1,20 @@
+citHeader("To cite ontologyIndex in publications use:")
+
+citEntry(entry = "Article",
+  title        = "{ontologyX}: a suite of R packages for working with ontological data",
+  author       = personList(
+  					as.person("Daniel Greene"),
+                   as.person("Sylvia Richardson"),
+				   as.person("Ernest Turro")),
+  journal      = "Bioinformatics",
+  year         = "2017",
+  pages        = "btw763",
+  publisher	= "{Oxford Univ Press}",
+
+  textVersion  =
+	  paste("Greene D, Richardson S and Turro E (2017).",
+		  "ontologyX: a suite of R packages for working with ontological data.",
+		  "Bioinformatics, pp. btw763.")
+)
+
+

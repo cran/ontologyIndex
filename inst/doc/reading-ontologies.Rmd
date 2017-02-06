@@ -38,7 +38,7 @@ c("is_a", "regulates", "part_of", "has_part", "happens_during", "negatively_regu
 Additional information is often present in the original file - for example definitions, labelled by the `def` tag in OBO format. `get_ontology` decides which properties to export based on the `extract_tags` argument. By default `extract_tags="minimal"`, resulting in only the properties `id`, `name`, `obsolete`, `parents`, `children` and `ancestors` being exported. It is possible to include all properties given in the file by setting `extract_tags="everything"`. The names of the properties included in the returned `ontology_index` are then the same as the names of the tags in OBO format. 
 
 ```{r eval=FALSE}
-ontology <- get_OBO(file, extract_tags="everything")
+ontology <- get_ontology(file, extract_tags="everything")
 ```
 
 All properties are stored in the returned `ontology_index` as lists, except for the following, which are coerced to `character` or `logical` vectors as appropriate: `"id", "name", "def", "comment", "obsolete", "created_by", "creation_date"`.

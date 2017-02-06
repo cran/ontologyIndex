@@ -85,7 +85,7 @@ get_relation_names <- function(file) {
 #'
 #' @param file File path of OBO formatted file.
 #' @param propagate_relationships Character vector of relations 
-#' @param extract_tags Character value: either "minimal" or "everything", determining whether to extract only the properties of terms which are required to run functions in the package - i.e. \code{"id", "name", "parents", "children"} and \code{"ancestors"} - or extract all properties provided in the file. Defaults to \code{"minimal"}.
+#' @param extract_tags Character value: either "minimal" or "everything", determining whether to extract only the properties of terms which are required to run functions in the package - i.e. \code{"id", "name", "parents", "children"} and \code{"ancestors"} - or extract all properties provided in the file. Term properties are named in the resulting \code{ontology_index} as their corresponding tags in the OBO file (except \code{"parents"}, \code{"children"} and \code{"ancestors"} which are appended with \code{"_OBO"} to avoid clashing with standard \code{ontology_index} properties. Defaults to \code{"minimal"}.
 #' @return \code{ontology_index} object.
 #' @export
 #' @seealso \code{\link{get_relation_names}}
@@ -134,6 +134,7 @@ get_ontology <- function(
 
 	simplify <- intersect(names(properties), c("id", "name", "def", "comment", "is_obsolete", "created_by", "creation_date"))
 	properties[simplify] <- lapply(properties[simplify], function(lst) sapply(lst, "[", 1))
+	names(properties) <- gsub(x=names(properties), pattern="^((parents)|(children)|(ancestors))$", replacement="\\1_OBO")
 
 	do.call(
 		what=ontology_index, 

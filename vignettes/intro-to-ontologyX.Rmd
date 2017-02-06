@@ -9,7 +9,7 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 ```{r echo=FALSE}
-knitr::opts_chunk$set(dev="svg", fig.width=7, fig.height=5, dev="svg", fig.align="center")
+knitr::opts_chunk$set(fig.width=7, fig.height=5, dev="svg", fig.align="center")
 ```
 `ontologyIndex` is the foundation of the 'ontologyX' packages: 
 
@@ -50,7 +50,7 @@ hpo$name[hpo$ancestors[["HP:0001873"]]]
 
 ## Removing redundant terms
 
-A set of terms (i.e. a `character` vector of term IDs) may contain redundant terms. The function `minimal_set` removes such pairs so as to leave a *minimal set* of terms, in the sense of the ontology's directed acyclic graph.
+A set of terms (i.e. a `character` vector of term IDs) may contain redundant terms. The function `minimal_set` removes such terms leaving a *minimal set* in the sense of the ontology's directed acyclic graph.
 
 ```{r}
 terms <- c("HP:0001871", "HP:0001873", "HP:0011877")

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Daniel Greene" />
 
-<meta name="date" content="2016-11-23" />
+<meta name="date" content="2017-02-06" />
 
 <title>Creating an ontology_index</title>
 
@@ -52,7 +52,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 
 <h1 class="title toc-ignore">Creating an <code>ontology_index</code></h1>
 <h4 class="author"><em>Daniel Greene</em></h4>
-<h4 class="date"><em>2016-11-23</em></h4>
+<h4 class="date"><em>2017-02-06</em></h4>
 
 
 
@@ -70,7 +70,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 ## [4] &quot;has_part&quot;             &quot;happens_during&quot;       &quot;negatively_regulates&quot;
 ## [7] &quot;positively_regulates&quot; &quot;occurs_in&quot;            &quot;ends_during&quot;</code></pre>
 <p>Additional information is often present in the original file - for example definitions, labelled by the <code>def</code> tag in OBO format. <code>get_ontology</code> decides which properties to export based on the <code>extract_tags</code> argument. By default <code>extract_tags=&quot;minimal&quot;</code>, resulting in only the properties <code>id</code>, <code>name</code>, <code>obsolete</code>, <code>parents</code>, <code>children</code> and <code>ancestors</code> being exported. It is possible to include all properties given in the file by setting <code>extract_tags=&quot;everything&quot;</code>. The names of the properties included in the returned <code>ontology_index</code> are then the same as the names of the tags in OBO format.</p>
-<pre class="sourceCode r"><code class="sourceCode r">ontology &lt;-<span class="st"> </span><span class="kw">get_OBO</span>(file, <span class="dt">extract_tags=</span><span class="st">&quot;everything&quot;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ontology &lt;-<span class="st"> </span><span class="kw">get_ontology</span>(file, <span class="dt">extract_tags=</span><span class="st">&quot;everything&quot;</span>)</code></pre>
 <p>All properties are stored in the returned <code>ontology_index</code> as lists, except for the following, which are coerced to <code>character</code> or <code>logical</code> vectors as appropriate: <code>&quot;id&quot;, &quot;name&quot;, &quot;def&quot;, &quot;comment&quot;, &quot;obsolete&quot;, &quot;created_by&quot;, &quot;creation_date&quot;</code>.</p>
 <p>Further properties can be mapped to vectors if required, modifying the returned <code>ontology_index</code> as a list, e.g.</p>
 <pre class="sourceCode r"><code class="sourceCode r">ontology$property &lt;-<span class="st"> </span><span class="kw">simplify2array</span>(ontology$property)</code></pre>

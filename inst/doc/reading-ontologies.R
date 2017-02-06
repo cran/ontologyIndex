@@ -11,7 +11,7 @@
 c("is_a", "regulates", "part_of", "has_part", "happens_during", "negatively_regulates", "positively_regulates", "occurs_in", "ends_during")
 
 ## ----eval=FALSE----------------------------------------------------------
-#  ontology <- get_OBO(file, extract_tags="everything")
+#  ontology <- get_ontology(file, extract_tags="everything")
 
 ## ----eval=FALSE----------------------------------------------------------
 #  ontology$property <- simplify2array(ontology$property)
