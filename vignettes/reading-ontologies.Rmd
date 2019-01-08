@@ -14,8 +14,10 @@ An `ontology_index` can be obtained by loading a pre-existing one - for example 
 ## Reading in an OBO file
 
 The function `get_ontology` can read ontologies encoded in OBO format into R as `ontology_index` objects. By default, the properties `id`, `name`, `obsolete`, `parents`, `children` and `ancestors` are populated.
-
-To call the function:
+```{r echo=FALSE}
+library(ontologyIndex)
+```
+To call the function: 
 ```{r eval=FALSE}
 ontology <- get_ontology(file)
 ```

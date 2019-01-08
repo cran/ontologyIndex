@@ -26,17 +26,3 @@ hpo$name[minimal]
 ## ------------------------------------------------------------------------
 get_ancestors(hpo, c("HP:0001873", "HP:0011877"))
 
-## ----echo=FALSE----------------------------------------------------------
-library(ontologyPlot)
-in_set <- c("HP:0000707", "HP:0000924", "HP:0000006")
-show <- c(in_set, "HP:0000118", "HP:0000001")
-fns <- list(
-	`Original set`=function(ontology, roots, terms) terms, 
-	`intersection_with_descendants of 'Phenotypic abnormality'`=intersection_with_descendants,
-	`exclude_descendants of 'Phenotypic abnormality'`=exclude_descendants,
-	`prune_descendants of 'Phenotypic abnormality'`=prune_descendants
-)
-par(mfrow=c(2,2))
-for (i in seq_along(fns)) plot(cex.main=0.8, main=names(fns)[i], onto_plot(ontology=hpo, label=official_labels(hpo, show), terms=show, color=if (i == 1) "transparent" else ifelse(show == "HP:0000118", "red", "transparent"), fillcolor=ifelse(show %in% fns[[i]](hpo, roots="HP:0000118", terms=in_set), "#66FF66", "#DBE6E0"), fontsize=15))
-par(mfrow=c(1,1))
-

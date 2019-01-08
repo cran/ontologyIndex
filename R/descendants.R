@@ -14,7 +14,7 @@ get_descendants <- function(ontology, roots, exclude_roots=FALSE) {
 		stop("'terms' must be a character vector of term IDs")
 	direct_descs <- unique(setdiff(unlist(use.names=FALSE, ontology[["children"]][roots]), roots))
 	result <- if (length(direct_descs) == 0) roots else c(roots, get_descendants(ontology, roots=direct_descs))
-	unname(if (exclude_roots) setdiff(result, roots) else result)
+	unique(unname(if (exclude_roots) setdiff(result, roots) else result))
 }
 
 #' Intersect a set of terms with the descendants of a given set of roots

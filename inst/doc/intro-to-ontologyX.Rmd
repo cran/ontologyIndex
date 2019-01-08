@@ -68,28 +68,11 @@ get_ancestors(hpo, c("HP:0001873", "HP:0011877"))
 
 ## Operating on subclasses 
 
-There are functions which allow set operations with respect to descendancy: `intersection_with_descendants`, `exclude_descendants` and `prune_descendants`. Each function accepts a set of terms `terms` and a set of root terms `roots`. We here demonstrate how these functions work on a set of terms containing: 
+There are functions which allow set operations with respect to descendancy: `intersection_with_descendants`, `exclude_descendants` and `prune_descendants`. Each function accepts a set of terms `terms` and a set of root terms `roots`. 
 
-* `"HP:0000707"`: Abnormality of the nervous system,
-* `"HP:0000924"`: Abnormality of the skeletal system, 
-* `"HP:0000006"`: Autosomal dominant inheritance.
-
-The panels below show the original, untransformed set of terms, and the set of terms after each of the above mentioned functions has been called on it, passing `"HP:0000118"`: 'Phenotypic abnormality' as the `roots` argument (terms present in the set highlighted in green, those not present in grey). `ontologyPlot` was used to create the diagrams. 
-
-```{r echo=FALSE}
-library(ontologyPlot)
-in_set <- c("HP:0000707", "HP:0000924", "HP:0000006")
-show <- c(in_set, "HP:0000118", "HP:0000001")
-fns <- list(
-	`Original set`=function(ontology, roots, terms) terms, 
-	`intersection_with_descendants of 'Phenotypic abnormality'`=intersection_with_descendants,
-	`exclude_descendants of 'Phenotypic abnormality'`=exclude_descendants,
-	`prune_descendants of 'Phenotypic abnormality'`=prune_descendants
-)
-par(mfrow=c(2,2))
-for (i in seq_along(fns)) plot(cex.main=0.8, main=names(fns)[i], onto_plot(ontology=hpo, label=official_labels(hpo, show), terms=show, color=if (i == 1) "transparent" else ifelse(show == "HP:0000118", "red", "transparent"), fillcolor=ifelse(show %in% fns[[i]](hpo, roots="HP:0000118", terms=in_set), "#66FF66", "#DBE6E0"), fontsize=15))
-par(mfrow=c(1,1))
-```
+* `intersection_with_descendants` transforms `terms` by retaining only those which are either in the set `roots` or amongst the descendants of a term in `roots`.
+* `exclude_descendants` transforms `terms` by removing terms which are either in the set `roots` or amongst the descendants of a term in `roots`.
+* `prune_descendants` transforms `terms` by replacing terms which are either in the set `roots` or amongst the descendants of a term in `roots` with the associated set of terms in `roots`.
 
 For more details see the help page for the individual functions, e.g. `?exclude_descendants`. Note that to perform analagous operations with respect to sets of ancestors, one can use the `get_ancestors` function in conjunction with the base R set functions, e.g. `setdiff` and `intersect`.
 
