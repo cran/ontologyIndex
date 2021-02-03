@@ -4,8 +4,9 @@
 \name{mpo}
 \alias{mpo}
 \title{MPO index}
-\format{List of lists and vectors}
+\format{
+List of lists and vectors
+}
 \description{
 \code{ontology_index} object encapsulating structure of the Mammalian Phenotype Ontology (MPO) comprising a \code{list} of lists/vectors of properties of MPO terms indexed by term ID
 }
-

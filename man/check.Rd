@@ -14,4 +14,3 @@ check(ontology, stop_if_invalid = FALSE)
 \description{
 Perform simple consistency checks on \code{ontology_index} object
 }
-

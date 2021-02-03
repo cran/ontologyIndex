@@ -26,4 +26,3 @@ get_descendants(hpo, roots="HP:0001873")
 \seealso{
 \code{link{get_ancestors}}
 }
-

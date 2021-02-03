@@ -4,8 +4,13 @@
 \alias{propagate_relations}
 \title{Select terms by propagating relations from a set of terms}
 \usage{
-propagate_relations(ontology, roots, relations, use_inverse_relations = FALSE,
-  exclude_roots = FALSE)
+propagate_relations(
+  ontology,
+  roots,
+  relations,
+  use_inverse_relations = FALSE,
+  exclude_roots = FALSE
+)
 }
 \arguments{
 \item{ontology}{\code{ontology_index} object.}
@@ -27,4 +32,3 @@ An `ontology_index` can contain multiple relations (for example in the case of t
 \seealso{
 \code{\link{get_ancestors}}, \code{\link{get_descendants}}
 }
-

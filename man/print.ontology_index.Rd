@@ -2,7 +2,7 @@
 % Please edit documentation in R/generic.R
 \name{print.ontology_index}
 \alias{print.ontology_index}
-\title{Print \code{ontology_index} object.}
+\title{Print \code{ontology_index} object}
 \usage{
 \method{print}{ontology_index}(x, ...)
 }
@@ -15,6 +15,5 @@
 Prints a summary
 }
 \description{
-Print \code{ontology_index} object.
+Print \code{ontology_index} object
 }
-

@@ -15,13 +15,15 @@ ancs_from_pars <- function(pars, chld) {
 	done <- sapply(pars, function(x) length(x) == 0)
 	cands <- which(done)
 	new.done <- 1:length(cands)
+	carry_over <- integer(0)
 	while (!all(done)) {
-		cands <- unique(unlist(use.names=FALSE, chld[cands[new.done]]))
+		cands <- unique(c(carry_over, as.integer(unlist(use.names=FALSE, chld[cands[new.done]]))))
 		v <- sapply(pars[cands], function(x) all(done[x]))
 		if (!is.logical(v)) {
 			stop("Can't get ancestors for items ", paste0(collapse=", ", which(!done)))
 		}
 		new.done <- which(v)
+		carry_over <- cands[!v]
 		done[cands[new.done]] <- TRUE
 		ancs[cands[new.done]] <- mapply(SIMPLIFY=FALSE, FUN=c, lapply(cands[new.done], function(x) unique(unlist(use.names=FALSE, ancs[pars[[x]]]))), cands[new.done])
 	}

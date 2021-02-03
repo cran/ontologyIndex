@@ -4,8 +4,9 @@
 \name{hpo}
 \alias{hpo}
 \title{HPO index}
-\format{List of lists and vectors}
+\format{
+List of lists and vectors
+}
 \description{
 \code{ontology_index} object encapsulating structure of the Human Phenotype Ontology (HPO) comprising a \code{list} of lists/vectors of properties of HPO terms indexed by term ID
 }
-

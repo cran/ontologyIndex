@@ -9,7 +9,7 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 ```{r echo=FALSE}
-knitr::opts_chunk$set(fig.width=7, fig.height=5, dev="svg", fig.align="center")
+knitr::opts_chunk$set(fig.width=7, fig.height=5, fig.align="center")
 ```
 `ontologyIndex` is the foundation of the 'ontologyX' packages: 
 

@@ -15,4 +15,3 @@ Get names of relations used in OBO file
 \seealso{
 \code{\link{get_ontology}}
 }
-

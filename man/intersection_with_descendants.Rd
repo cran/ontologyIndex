@@ -26,4 +26,3 @@ intersection_with_descendants(hpo, c("HP:0001872", "HP:0000707"), c("HP:0001873"
 \seealso{
 \code{\link{exclude_descendants}}, \code{\link{prune_descendants}}
 }
-

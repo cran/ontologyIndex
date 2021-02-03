@@ -26,4 +26,3 @@ get_term_frequencies(hpo, list("HP:0001873"))
 \seealso{
 \code{\link{get_term_info_content}}
 }
-

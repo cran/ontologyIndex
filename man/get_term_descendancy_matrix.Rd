@@ -4,8 +4,7 @@
 \alias{get_term_descendancy_matrix}
 \title{Get logical descendancy matrix for set of terms}
 \usage{
-get_term_descendancy_matrix(ontology, terms = NULL, rows = terms,
-  cols = terms)
+get_term_descendancy_matrix(ontology, terms = NULL, rows = terms, cols = terms)
 }
 \arguments{
 \item{ontology}{\code{ontology_index} object.}
@@ -28,4 +27,3 @@ Get logical descendancy matrix for set of terms
 data(hpo)
 get_term_descendancy_matrix(hpo, c("HP:0001873", "HP:0011877"))
 }
-

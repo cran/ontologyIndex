@@ -22,4 +22,3 @@ Exclude from set \code{terms}, any terms that are either in, or descend from one
 \seealso{
 \code{\link{intersection_with_descendants}}, \code{\link{prune_descendants}}
 }
-

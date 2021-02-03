@@ -24,4 +24,3 @@ get_ancestors(hpo, c("HP:0001873", "HP:0011877"))
 \seealso{
 \code{link{get_descendants}}
 }
-

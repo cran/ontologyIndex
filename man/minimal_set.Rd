@@ -21,4 +21,3 @@ Remove redundant/implied terms from a set of terms
 data(hpo)
 minimal_set(hpo, c("HP:0001873", "HP:0001872"))
 }
-

@@ -4,8 +4,14 @@
 \alias{ontology_index}
 \title{Create \code{ontology_index} object from vectors and lists of term properties}
 \usage{
-ontology_index(parents, id = names(parents), name = id,
-  obsolete = setNames(nm = id, rep(FALSE, length(id))), version = NULL, ...)
+ontology_index(
+  parents,
+  id = names(parents),
+  name = id,
+  obsolete = setNames(nm = id, rep(FALSE, length(id))),
+  version = NULL,
+  ...
+)
 }
 \arguments{
 \item{parents}{List of character vectors of parents per term.}
@@ -28,4 +34,3 @@ animal_superclasses <- list(animal=character(0), mammal="animal", cat="mammal", 
 animal_ontology <- ontology_index(parents=animal_superclasses)
 unclass(animal_ontology)
 }
-

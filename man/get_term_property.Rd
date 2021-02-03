@@ -18,4 +18,3 @@ get_term_property(ontology, property_name, term, as_names = FALSE)
 \description{
 Get property of individual ontological term
 }
-
