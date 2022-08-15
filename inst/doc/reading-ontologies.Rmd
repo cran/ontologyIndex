@@ -65,6 +65,10 @@ In the same manner, a valid `ontology_index` can be built up from scratch as a l
 
 In order to read in ontologies in OWL syntax, it is recommended to first convert to OBO format, for example using the ROBOT command line tool https://github.com/ontodev/robot.
 
+## Term equivalence
+
+If the option `merge_equivalent_terms` in `get_ontology`/`get_OBO` is set to `TRUE` (the default), then terms marked `equivalent_to` target terms are merged and properties aggregated (except for those listed above coerced to vectors, in which case the values that would be assigned to the target term are used).
+
 ## Creating an `ontology_index` explicitly
 
 The function `ontology_index` can be used to create an object with class `ontology_index`. This could be useful for instance if the user wished to convert a directed acyclic graph (DAG) with edges representing sub/super-class relationships into an `ontology_index`. It is similar to the function `data.frame`: it accepts a variable number of arguments corresponding to properties for ontological terms, which must each be a vector or list of the same length (except the `version` argument, which can be any object and should contain any information about the version of the ontology). The only mandatory argument is the `parents` argument, and should be a `list` of `character` vectors giving the IDs of the 'parents'/'superclasses' of each term. The term IDs can either be supplied as the `names` attribute of the `parents` or as a separate `id` argument of the same length as `parents`. The human-readable term names can be passed as the `names` argument (defaults to the same as `id`). As usual the `children` and `ancestors` properties are derived from the `parents`. Warnings are generated if any IDs given in the `parents` argument are not in the `id` argument. 

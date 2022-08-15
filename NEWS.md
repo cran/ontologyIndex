@@ -1,3 +1,8 @@
+# ontologyIndex 2.9
+
+* Attempting to create ontologies containing cycles now fails with an error message and `get_ontology` now has option `merge_equivalent_terms` (`TRUE` by default) so that terms that are marked `equivalent_to` other terms are merged and properties aggregated (thanks to feedback from Vincent Carey).
+* `get_ancestors` now returns an empty character vector rather than `NULL` when `terms` argument is empty.
+
 # ontologyIndex 2.2
 
 * The `*_branches` functions have all been renamed to `*_descendants` and their `branch_roots` argument to `roots`.

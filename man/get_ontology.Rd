@@ -5,9 +5,19 @@
 \alias{get_OBO}
 \title{Read ontology from OBO file into R}
 \usage{
-get_ontology(file, propagate_relationships = "is_a", extract_tags = "minimal")
+get_ontology(
+  file,
+  propagate_relationships = "is_a",
+  extract_tags = "minimal",
+  merge_equivalent_terms = TRUE
+)
 
-get_OBO(file, propagate_relationships = "is_a", extract_tags = "minimal")
+get_OBO(
+  file,
+  propagate_relationships = "is_a",
+  extract_tags = "minimal",
+  merge_equivalent_terms = TRUE
+)
 }
 \arguments{
 \item{file}{File path of OBO formatted file.}
@@ -15,6 +25,8 @@ get_OBO(file, propagate_relationships = "is_a", extract_tags = "minimal")
 \item{propagate_relationships}{Character vector of relations}
 
 \item{extract_tags}{Character value: either "minimal" or "everything", determining whether to extract only the properties of terms which are required to run functions in the package - i.e. \code{"id", "name", "parents", "children"} and \code{"ancestors"} - or extract all properties provided in the file. Term properties are named in the resulting \code{ontology_index} as their corresponding tags in the OBO file (except \code{"parents"}, \code{"children"} and \code{"ancestors"} which are appended with \code{"_OBO"} to avoid clashing with standard \code{ontology_index} properties. Defaults to \code{"minimal"}.}
+
+\item{merge_equivalent_terms}{Logical value determining whether terms that are marked \code{"equivalent_to"} a target term should be merged, retaining properties of the target term when the property should have one value, e.g. the term ID and name. Defaults to \code{TRUE}.}
 }
 \value{
 \code{ontology_index} object.

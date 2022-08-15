@@ -6,11 +6,12 @@ str_ancs_from_pars <- function(id, pars, chld) {
 
 	setNames(nm=id, lapply(ancs_from_pars(
 		int.pars,
-		int.chld
+		int.chld,
+		id
 	), function(x) id[x]))
 }
 
-ancs_from_pars <- function(pars, chld) {
+ancs_from_pars <- function(pars, chld, id) {
 	ancs <- as.list(seq(length(pars)))
 	done <- sapply(pars, function(x) length(x) == 0)
 	cands <- which(done)
@@ -26,6 +27,7 @@ ancs_from_pars <- function(pars, chld) {
 		carry_over <- cands[!v]
 		done[cands[new.done]] <- TRUE
 		ancs[cands[new.done]] <- mapply(SIMPLIFY=FALSE, FUN=c, lapply(cands[new.done], function(x) unique(unlist(use.names=FALSE, ancs[pars[[x]]]))), cands[new.done])
+		if (length(new.done) == 0L) stop(sprintf("Cycle detected in ontology! See ancestors of %s", id[carry_over[1]]))
 	}
 	ancs
 }
@@ -49,7 +51,7 @@ ontology_index <- function(parents, id=names(parents), name=id, obsolete=setName
 	if (!is.character(id))
 		stop("'id' argument must be of class 'character'")
 
-	if (!((is.null(names(parents)) & length(parents) == length(id)) | identical(names(parents), id))) {
+	if (!((is.null(names(parents)) & length(parents) == length(id)) | identical(names(parents), as.character(id)))) {
 		stop("`parents` argument must have names attribute identical to `id` argument or be the same length")
 	}
 	missing_terms <- setdiff(unlist(use.names=FALSE, parents), id)
@@ -88,27 +90,31 @@ get_relation_names <- function(file) {
 #' @param file File path of OBO formatted file.
 #' @param propagate_relationships Character vector of relations 
 #' @param extract_tags Character value: either "minimal" or "everything", determining whether to extract only the properties of terms which are required to run functions in the package - i.e. \code{"id", "name", "parents", "children"} and \code{"ancestors"} - or extract all properties provided in the file. Term properties are named in the resulting \code{ontology_index} as their corresponding tags in the OBO file (except \code{"parents"}, \code{"children"} and \code{"ancestors"} which are appended with \code{"_OBO"} to avoid clashing with standard \code{ontology_index} properties. Defaults to \code{"minimal"}.
+#' @param merge_equivalent_terms Logical value determining whether terms that are marked \code{"equivalent_to"} a target term should be merged, retaining properties of the target term when the property should have one value, e.g. the term ID and name. Defaults to \code{TRUE}.
 #' @return \code{ontology_index} object.
 #' @export
 #' @seealso \code{\link{get_relation_names}}
-#' @importFrom stats setNames
 get_ontology <- function(
 	file, 
 	propagate_relationships="is_a",
-	extract_tags="minimal"
+	extract_tags="minimal",
+	merge_equivalent_terms=TRUE
 ) {
-	if (!extract_tags %in% c("minimal", "everything"))
-		stop("'extract_tags' argument should be equal to either 'minimal' or 'everything'")
-
-	minimal <- extract_tags == "minimal"
-
 	raw_lines <- readLines(file)
 	#remove comments and trailing modifiers
 	m <- regexpr(text=raw_lines, pattern="^([^!{]+[^!{ \t])")
 	lines <- regmatches(x=raw_lines, m=m)
 
 	term_lines <- grep(pattern=term_regexp, x=lines)
+	
 	if (length(term_lines) == 0) stop("No terms detected in ontology source")
+
+	if (!extract_tags %in% c("minimal", "everything"))
+		stop("'extract_tags' argument should be equal to either 'minimal' or 'everything'")
+
+	minimal <- extract_tags == "minimal"
+
+	term_lines <- grep(pattern=term_regexp, x=lines)
 
 	tagged_lines <- grep(pattern=tag_regexp, x=lines)
 
@@ -119,11 +125,7 @@ get_ontology <- function(
 	all_present_tag_types <- unique(tags)
 	use_tags <- if (minimal) intersect(c("id", "name", "is_obsolete"), all_present_tag_types) else all_present_tag_types
 
-	propagate_lines <- which(tags %in% propagate_relationships)
-
-	parents <- unname(lapply(FUN=unique, split(values[propagate_lines], cut(tagged_lines[propagate_lines], breaks=c(term_lines, Inf), labels=seq(length(term_lines))))))
-
-	tag_lines <- which(tags %in% use_tags)
+	tag_lines <- which(tags %in% c(propagate_relationships, use_tags, "equivalent_to"))
 
 	properties <- mapply(
 		SIMPLIFY=FALSE,
@@ -134,9 +136,35 @@ get_ontology <- function(
 		split(tagged_lines[tag_lines], tags[tag_lines])
 	)
 
+	ids_l <- properties[["id"]]
+	if (any(lengths(ids_l) != 1)) { stop(sprintf("Term without exactly one id found: %s", ids_l[[which(lengths(ids_l)!=1)[1]]][1])) }
+	ids <- simplify2array(ids_l)
+	equivs <- if (merge_equivalent_terms && "equivalent_to" %in% names(properties)) {
+		vapply(FUN.VALUE=character(1), X=properties[["equivalent_to"]], FUN=function(x) { if (length(x) > 1) stop(sprintf("Terms with multiple equivalent_to fields detected: %s", paste(collapse=", ", x))); if (length(x) == 0) NA_character_ else x })
+	} else { rep(NA_character_, length(ids)) }
+	if (!all(equivs[!is.na(equivs)] %in% ids)) {
+		stop(sprintf("found 'equivalent_to' terms not listed: %s", paste0(collapse=", ", setdiff(equivs[!is.na(equivs)], ids))))
+	}
+	true_ids <- ids
+	while (any(!is.na(equivs[match(true_ids, ids)]))) {
+		has_equiv <- which(!is.na(equivs[match(true_ids, ids)]))
+		true_ids[has_equiv] <- equivs[match(true_ids[has_equiv], ids)]
+	}
+	uids <- unique(true_ids)
+	properties <- lapply(properties, function(x) split(as.character(unlist(x[order(!is.na(equivs))], use.names=FALSE)), f=factor(rep(true_ids[order(!is.na(equivs))], times=lengths(x[order(!is.na(equivs))])), levels=uids)))
+
+	parents <- local({
+		df <- do.call(what=rbind, lapply(properties[intersect(names(properties), propagate_relationships)], function(x) data.frame(stringsAsFactors=FALSE, p=true_ids[match(as.character(unlist(use.names=FALSE, x)), ids)], cd=rep(uids, times=lengths(x)))))
+		odf <- (function(x) x[!duplicated(x),])(df[df$p!=df$cd,])
+		split(odf$p, factor(odf$cd, levels=uids))
+	})
+
 	simplify <- intersect(names(properties), c("id", "name", "def", "comment", "is_obsolete", "created_by", "creation_date"))
+
 	properties[simplify] <- lapply(properties[simplify], function(lst) sapply(lst, "[", 1))
-	names(properties) <- gsub(x=names(properties), pattern="^((parents)|(children)|(ancestors))$", replacement="\\1_OBO")
+
+	names(properties) <- gsub(x=names(properties), pattern="^((equivalent_to)|(parents)|(children)|(ancestors))$", replacement="\\1_OBO")
+	if (any(ids!=true_ids)) properties$equivalent_to <- split(ids[ids!=true_ids], factor(true_ids[ids!=true_ids], levels=uids))
 
 	do.call(
 		what=ontology_index, 
@@ -147,7 +175,7 @@ get_ontology <- function(
 				id=properties[["id"]],
 				name=properties[["name"]],
 				obsolete=if ("is_obsolete" %in% names(properties)) (!is.na(properties[["is_obsolete"]])) & properties[["is_obsolete"]] == "true" else rep(FALSE, length(properties[["id"]]))),
-			properties[-which(names(properties) %in% c("id","name","is_obsolete"))]))
+			properties[c(setdiff(use_tags, c("id","name","is_obsolete")), if (any(!is.na(equivs))) "equivalent_to")]))
 }
 
 #' @export
@@ -187,7 +215,7 @@ check <- function(ontology, stop_if_invalid=FALSE) {
 	required <- c("id","parents","children","ancestors")
 	#all crucial attributes must be present and of correct class
 	if ("obsolete" %in% names(ontology))
-		if (class(ontology[["obsolete"]]) != "logical")
+		if (!is.logical(ontology[["obsolete"]]))
 			if (stop_if_invalid) stop("'obsolete' member must be logical")
 			else return(FALSE)
 	if (any(!(required %in% names(ontology))))

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Daniel Greene" />
 
-<meta name="date" content="2021-02-03" />
+<meta name="date" content="2022-08-15" />
 
 <title>Introduction to ontologyX</title>
 
@@ -27,43 +27,77 @@
     </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 
 </style>
 <script>
@@ -91,7 +125,187 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 
 
@@ -105,20 +319,20 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Introduction to ontologyX</h1>
 <h4 class="author">Daniel Greene</h4>
-<h4 class="date">2021-02-03</h4>
+<h4 class="date">2022-08-15</h4>
 
 
 
-<p><code>ontologyIndex</code> is the foundation of the 'ontologyX' packages:</p>
+<p><code>ontologyIndex</code> is the foundation of the ‘ontologyX’ packages:</p>
 <ul>
 <li><code>ontologyIndex</code>, for representing ontologies as R objects and enabling simple queries,</li>
 <li><code>ontologySimilarity</code>, for computing semantic similarity between ontological terms and annotations,</li>
 <li><code>ontologyPlot</code> for visualising sets of ontological terms with various graphical options.</li>
 </ul>
-<p>The functionality of the <code>ontologyIndex</code> package is centered around <code>ontology_index</code> objects: simple R representations of ontologies as <code>list</code>s and <code>vector</code>s of term properties (ID, label, etc.) which are named by term so that simple look-ups by term can be performed. Ontologies encoded in OBO format can be read into R as <code>ontology_index</code>es using the function <code>get_ontology</code> (see the vignette 'Creating an ontology_index'). Ontologies in OWL syntax can be converted to OBO format using freely available software (e.g. the ROBOT command line tool: <a href="https://github.com/ontodev/robot" class="uri">https://github.com/ontodev/robot</a>). The package comes with three such ready-made <code>ontology_index</code> objects: <code>hpo</code>, <code>mpo</code> and <code>go</code>, encapsulating the Human Phenotype Ontology (HPO), Mammalian Phenotype Ontology (MPO) and Gene Ontology (GO) respectively, each loadable with <code>data</code>. Here we'll demonstrate the package using the HPO.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ontologyIndex)
-<span class="kw">data</span>(hpo)</code></pre></div>
-<p>The <code>ontology_index</code> object is just a list of 'vectors and lists' of term properties, indexed by the IDs of the terms:</p>
+<p>The functionality of the <code>ontologyIndex</code> package is centered around <code>ontology_index</code> objects: simple R representations of ontologies as <code>list</code>s and <code>vector</code>s of term properties (ID, label, etc.) which are named by term so that simple look-ups by term can be performed. Ontologies encoded in OBO format can be read into R as <code>ontology_index</code>es using the function <code>get_ontology</code> (see the vignette ‘Creating an ontology_index’). Ontologies in OWL syntax can be converted to OBO format using freely available software (e.g. the ROBOT command line tool: <a href="https://github.com/ontodev/robot" class="uri">https://github.com/ontodev/robot</a>). The package comes with three such ready-made <code>ontology_index</code> objects: <code>hpo</code>, <code>mpo</code> and <code>go</code>, encapsulating the Human Phenotype Ontology (HPO), Mammalian Phenotype Ontology (MPO) and Gene Ontology (GO) respectively, each loadable with <code>data</code>. Here we’ll demonstrate the package using the HPO.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(ontologyIndex)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">data</span>(hpo)</a></code></pre></div>
+<p>The <code>ontology_index</code> object is just a list of ‘vectors and lists’ of term properties, indexed by the IDs of the terms:</p>
 <pre><code>##    property     class
 ## 1        id character
 ## 2      name character
@@ -126,10 +340,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 ## 4  children      list
 ## 5 ancestors      list
 ## 6  obsolete   logical</code></pre>
-<p>The properties which all <code>ontology_index</code> objects contain are <code>id</code>, <code>name</code>, <code>parents</code>, <code>children</code> and <code>ancestors</code> as these are the properties which the functions in the <code>ontologyIndex</code> package operate on. However, additional properties per term - for example custom annotation, or whatever terms are tagged with in the original OBO file - can also be read in and queried in the same way (see the vignette 'Creating an ontology_index').</p>
-<p>The <code>children</code> and <code>ancestors</code> properties are determined by the <code>parent</code> property, with the <code>ancestors</code> of a term derived by propagating the 'is parent' relation (i.e. with the terms for which the relation holds given in the <code>parent</code> property). When reading an <code>ontology_index</code> from an OBO file, the 'is parent' relation defaults to &quot;is_a&quot;. However, this can be set to any relation or combination of relations (e.g. &quot;part_of&quot; or both &quot;is_a&quot; and &quot;part_of&quot; - see 'Creating an ontology_index' and <code>?get_ontology</code> for more details). Usage of phrases involving 'ancestors' and 'descendants' of terms in this document and in the names of functions exported by the package refer to the hierarchy determined by this <code>parent</code> property.</p>
+<p>The properties which all <code>ontology_index</code> objects contain are <code>id</code>, <code>name</code>, <code>parents</code>, <code>children</code> and <code>ancestors</code> as these are the properties which the functions in the <code>ontologyIndex</code> package operate on. However, additional properties per term - for example custom annotation, or whatever terms are tagged with in the original OBO file - can also be read in and queried in the same way (see the vignette ‘Creating an ontology_index’).</p>
+<p>The <code>children</code> and <code>ancestors</code> properties are determined by the <code>parent</code> property, with the <code>ancestors</code> of a term derived by propagating the ‘is parent’ relation (i.e. with the terms for which the relation holds given in the <code>parent</code> property). When reading an <code>ontology_index</code> from an OBO file, the ‘is parent’ relation defaults to “is_a”. However, this can be set to any relation or combination of relations (e.g. “part_of” or both “is_a” and “part_of” - see ‘Creating an ontology_index’ and <code>?get_ontology</code> for more details). Usage of phrases involving ‘ancestors’ and ‘descendants’ of terms in this document and in the names of functions exported by the package refer to the hierarchy determined by this <code>parent</code> property.</p>
 <p>You can use the function <code>get_term_property</code> to query the <code>ontology_index</code> object, and retrieve a particular attribute for a single term. For instance:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_term_property</span>(<span class="dt">ontology=</span>hpo, <span class="dt">property=</span><span class="st">&quot;ancestors&quot;</span>, <span class="dt">term=</span><span class="st">&quot;HP:0001873&quot;</span>, <span class="dt">as_names=</span><span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">get_term_property</span>(<span class="dt">ontology=</span>hpo, <span class="dt">property=</span><span class="st">&quot;ancestors&quot;</span>, <span class="dt">term=</span><span class="st">&quot;HP:0001873&quot;</span>, <span class="dt">as_names=</span><span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>##                                       HP:0000001 
 ##                                            &quot;All&quot; 
 ##                                       HP:0000118 
@@ -142,17 +356,17 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 ##                        &quot;Abnormal platelet count&quot; 
 ##                                       HP:0001873 
 ##                               &quot;Thrombocytopenia&quot;</code></pre>
-<p>However you can also look up properties for a given term using <code>[</code> and <code>[[</code> as appropriate, since an <code>ontology_index</code> just a <code>list</code>. This is the best way to use the <code>ontology_index</code> if you are operating on multiple terms as it's faster.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hpo<span class="op">$</span>name[<span class="st">&quot;HP:0001873&quot;</span>]</code></pre></div>
+<p>However you can also look up properties for a given term using <code>[</code> and <code>[[</code> as appropriate, since an <code>ontology_index</code> just a <code>list</code>. This is the best way to use the <code>ontology_index</code> if you are operating on multiple terms as it’s faster.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">hpo<span class="op">$</span>name[<span class="st">&quot;HP:0001873&quot;</span>]</a></code></pre></div>
 <pre><code>##         HP:0001873 
 ## &quot;Thrombocytopenia&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hpo<span class="op">$</span>id[<span class="kw">grep</span>(<span class="dt">x=</span>hpo<span class="op">$</span>name, <span class="dt">pattern=</span><span class="st">&quot;Thrombocytopenia&quot;</span>)]</code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">hpo<span class="op">$</span>id[<span class="kw">grep</span>(<span class="dt">x=</span>hpo<span class="op">$</span>name, <span class="dt">pattern=</span><span class="st">&quot;Thrombocytopenia&quot;</span>)]</a></code></pre></div>
 <pre><code>##   HP:0001873 
 ## &quot;HP:0001873&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hpo<span class="op">$</span>ancestors[[<span class="st">&quot;HP:0001873&quot;</span>]]</code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">hpo<span class="op">$</span>ancestors[[<span class="st">&quot;HP:0001873&quot;</span>]]</a></code></pre></div>
 <pre><code>## [1] &quot;HP:0000001&quot; &quot;HP:0000118&quot; &quot;HP:0001871&quot; &quot;HP:0001872&quot; &quot;HP:0011873&quot;
 ## [6] &quot;HP:0001873&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hpo<span class="op">$</span>name[hpo<span class="op">$</span>ancestors[[<span class="st">&quot;HP:0001873&quot;</span>]]]</code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">hpo<span class="op">$</span>name[hpo<span class="op">$</span>ancestors[[<span class="st">&quot;HP:0001873&quot;</span>]]]</a></code></pre></div>
 <pre><code>##                                       HP:0000001 
 ##                                            &quot;All&quot; 
 ##                                       HP:0000118 
@@ -167,24 +381,24 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 ##                               &quot;Thrombocytopenia&quot;</code></pre>
 <div id="removing-redundant-terms" class="section level2">
 <h2>Removing redundant terms</h2>
-<p>A set of terms (i.e. a <code>character</code> vector of term IDs) may contain redundant terms. The function <code>minimal_set</code> removes such terms leaving a <em>minimal set</em> in the sense of the ontology's directed acyclic graph.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">terms &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;HP:0001871&quot;</span>, <span class="st">&quot;HP:0001873&quot;</span>, <span class="st">&quot;HP:0011877&quot;</span>)
-hpo<span class="op">$</span>name[terms]</code></pre></div>
+<p>A set of terms (i.e. a <code>character</code> vector of term IDs) may contain redundant terms. The function <code>minimal_set</code> removes such terms leaving a <em>minimal set</em> in the sense of the ontology’s directed acyclic graph.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">terms &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;HP:0001871&quot;</span>, <span class="st">&quot;HP:0001873&quot;</span>, <span class="st">&quot;HP:0011877&quot;</span>)</a>
+<a class="sourceLine" id="cb13-2" title="2">hpo<span class="op">$</span>name[terms]</a></code></pre></div>
 <pre><code>##                                       HP:0001871 
 ## &quot;Abnormality of blood and blood-forming tissues&quot; 
 ##                                       HP:0001873 
 ##                               &quot;Thrombocytopenia&quot; 
 ##                                       HP:0011877 
 ##                 &quot;Increased mean platelet volume&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">minimal &lt;-<span class="st"> </span><span class="kw">minimal_set</span>(hpo, terms)
-hpo<span class="op">$</span>name[minimal]</code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">minimal &lt;-<span class="st"> </span><span class="kw">minimal_set</span>(hpo, terms)</a>
+<a class="sourceLine" id="cb15-2" title="2">hpo<span class="op">$</span>name[minimal]</a></code></pre></div>
 <pre><code>##                       HP:0001873                       HP:0011877 
 ##               &quot;Thrombocytopenia&quot; &quot;Increased mean platelet volume&quot;</code></pre>
 </div>
 <div id="finding-all-ancestors-of-a-set-of-terms" class="section level2">
 <h2>Finding all ancestors of a set of terms</h2>
-<p>To find all the ancestors of a set of terms, i.e. all the terms which are an ancestor of any term in the given set, one can use the <code>get_ancestors</code> function:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_ancestors</span>(hpo, <span class="kw">c</span>(<span class="st">&quot;HP:0001873&quot;</span>, <span class="st">&quot;HP:0011877&quot;</span>))</code></pre></div>
+<p>To find all the ancestors of a set of terms, i.e. all the terms which are an ancestor of any term in the given set, one can use the <code>get_ancestors</code> function:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">get_ancestors</span>(hpo, <span class="kw">c</span>(<span class="st">&quot;HP:0001873&quot;</span>, <span class="st">&quot;HP:0011877&quot;</span>))</a></code></pre></div>
 <pre><code>## [1] &quot;HP:0000001&quot; &quot;HP:0000118&quot; &quot;HP:0001871&quot; &quot;HP:0001872&quot; &quot;HP:0011873&quot;
 ## [6] &quot;HP:0001873&quot; &quot;HP:0011876&quot; &quot;HP:0011877&quot;</code></pre>
 </div>
@@ -196,7 +410,7 @@ hpo<span class="op">$</span>name[minimal]</code></pre></div>
 <li><code>exclude_descendants</code> transforms <code>terms</code> by removing terms which are either in the set <code>roots</code> or amongst the descendants of a term in <code>roots</code>.</li>
 <li><code>prune_descendants</code> transforms <code>terms</code> by replacing terms which are either in the set <code>roots</code> or amongst the descendants of a term in <code>roots</code> with the associated set of terms in <code>roots</code>.</li>
 </ul>
-<p>For more details see the help page for the individual functions, e.g. <code>?exclude_descendants</code>. Note that to perform analagous operations with respect to sets of ancestors, one can use the <code>get_ancestors</code> function in conjunction with the base R set functions, e.g. <code>setdiff</code> and <code>intersect</code>.</p>
+<p>For more details see the help page for the individual functions, e.g. <code>?exclude_descendants</code>. Note that to perform analagous operations with respect to sets of ancestors, one can use the <code>get_ancestors</code> function in conjunction with the base R set functions, e.g. <code>setdiff</code> and <code>intersect</code>.</p>
 </div>
 <div id="additional-ontological-functionality" class="section level2">
 <h2>Additional ontological functionality</h2>

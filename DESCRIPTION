@@ -1,8 +1,8 @@
 Package: ontologyIndex
 Type: Package
-Title: Functions for Reading Ontologies into R
-Version: 2.7
-Date: 2021-02-03
+Title: Reading Ontologies into R
+Version: 2.9
+Date: 2022-08-13
 Author: Daniel Greene <dg333@cam.ac.uk>
 Maintainer: Daniel Greene <dg333@cam.ac.uk>
 Description: Functions for reading ontologies into R as lists and manipulating sets of ontological terms - 'ontologyX: A suite of R packages for working with ontological data', Greene et al 2017 <doi:10.1093/bioinformatics/btw763>.
@@ -10,8 +10,8 @@ License: GPL (>= 2)
 Depends: R (>= 3.1.0)
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
 NeedsCompilation: no
-Packaged: 2021-02-03 15:34:15 UTC; dg
+Packaged: 2022-08-15 19:50:40 UTC; dg
 Repository: CRAN
-Date/Publication: 2021-02-03 17:30:03 UTC
+Date/Publication: 2022-08-15 20:20:06 UTC

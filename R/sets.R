@@ -41,7 +41,7 @@ get_term_property <- function(ontology, property_name, term, as_names=FALSE) {
 #' @export
 #' @importFrom stats setNames
 get_term_descendancy_matrix <- function(ontology, terms=NULL, rows=terms, cols=terms) {
-	if (class(terms) != "character")
+	if (!is.character(terms))
 		stop("'terms' must be a character vector of term IDs")
 	# 'row is column ancestor'
 	if (length(terms) < 2)
@@ -66,7 +66,7 @@ get_term_descendancy_matrix <- function(ontology, terms=NULL, rows=terms, cols=t
 #' minimal_set(hpo, c("HP:0001873", "HP:0001872"))
 #' @export
 minimal_set <- function(ontology, terms) {
-	if (class(terms) != "character")
+	if (!is.character(terms))
 		stop("'terms' must be a character vector of term IDs")
 	redundant <- unlist(
 		use.names=FALSE,
@@ -89,14 +89,14 @@ minimal_set <- function(ontology, terms) {
 #' get_ancestors(hpo, c("HP:0001873", "HP:0011877"))
 #' @export
 get_ancestors <- function(ontology, terms) {
-	if (class(terms) != "character")
+	if (!is.character(terms))
 		stop("'terms' must be a character vector of term IDs")
-	unique(
+	as.character(unique(
 		unlist(
 			use.names=FALSE,
 			ontology$ancestors[terms]
 		)
-	)
+	))
 }
 
 #' Get frequency of each term in a set of phenotypes
@@ -164,7 +164,7 @@ get_term_info_content <- function(
 #' @seealso \code{\link{get_ancestors}}, \code{\link{get_descendants}}
 #' @export
 propagate_relations <- function(ontology, roots, relations, use_inverse_relations=FALSE, exclude_roots=FALSE) {
-	if (class(roots) != "character")
+	if (!is.character(roots))
 		stop("'roots' must be a character vector of term IDs")
 	if (!all(roots %in% ontology$id))
 		warning(paste0("Terms '", paste0(roots, collapse=", "), "' not found in ontology"))

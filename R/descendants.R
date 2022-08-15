@@ -10,8 +10,8 @@
 #' get_descendants(hpo, roots="HP:0001873")
 #' @export
 get_descendants <- function(ontology, roots, exclude_roots=FALSE) {
-	if (class(roots) != "character")
-		stop("'terms' must be a character vector of term IDs")
+	if (!is.character(roots))
+		stop("'roots' must be a character vector of term IDs")
 	direct_descs <- unique(setdiff(unlist(use.names=FALSE, ontology[["children"]][roots]), roots))
 	result <- if (length(direct_descs) == 0) roots else c(roots, get_descendants(ontology, roots=direct_descs))
 	unique(unname(if (exclude_roots) setdiff(result, roots) else result))
@@ -29,7 +29,7 @@ get_descendants <- function(ontology, roots, exclude_roots=FALSE) {
 #' @export
 #' @seealso \code{\link{exclude_descendants}}, \code{\link{prune_descendants}}
 intersection_with_descendants <- function(ontology, roots, terms) { 
-	if (class(roots) != "character" | class(terms) != "character")
+	if (!is.character(roots) | !is.character(terms))
 		stop("'roots' and 'terms' must be character vectors of term IDs")
 	as.character(if (length(terms) > 0)
 		terms[
@@ -53,7 +53,7 @@ intersection_with_descendants <- function(ontology, roots, terms) {
 #' @export
 #' @seealso \code{\link{intersection_with_descendants}}, \code{\link{prune_descendants}}
 exclude_descendants <- function(ontology, roots, terms) {
-	if (class(roots) != "character" | class(terms) != "character")
+	if (!is.character(roots) | !is.character(terms))
 		stop("'roots' and 'terms' must be character vectors of term IDs")
 	as.character(Filter(
 		x=terms,
@@ -72,7 +72,7 @@ exclude_descendants <- function(ontology, roots, terms) {
 #' @export
 #' @seealso \code{\link{exclude_descendants}}, \code{\link{intersection_with_descendants}}
 prune_descendants <- function(ontology, roots, terms) {
-	if (class(roots) != "character" | class(terms) != "character")
+	if (!is.character(roots) | !is.character(terms))
 		stop("'roots' and 'terms' must be character vectors of term IDs")
 
 	excluded <- exclude_descendants(ontology, roots, terms)
