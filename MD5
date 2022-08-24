@@ -1,7 +1,7 @@
-a07bdf44a8a191328adb3b848f391c42 *DESCRIPTION
+27115138b83486d00e7af829ef0057c5 *DESCRIPTION
 091be43c9036b1b26f57867f66692cac *NAMESPACE
 8ec4b8be0cef0affc7d21e576a36580a *NEWS.md
-6ce7964ce23a28661c3f4b6cbb476487 *R/data.R
+78561c3bd6d592a8252adaeeab3e578e *R/data.R
 2acd74a8805ff406f747ddd1e0ad463d *R/descendants.R
 d07ce3d547cb712584d56a430aefa830 *R/generic.R
 96473133fcffc169179129c17d6fbd64 *R/sets.R
@@ -13,10 +13,10 @@ e3f6f8ebe9cfab369c183db66362a405 *data/mpo.RData
 75e8ecc19ae88dc432b02143c024d332 *inst/CITATION
 38b823d9f03fe04e11025995715cd2e9 *inst/doc/intro-to-ontologyX.R
 a6305710fcbc6485b9ca503ad20573f8 *inst/doc/intro-to-ontologyX.Rmd
-80fb06ed0f6a854d82f77f80928875ee *inst/doc/intro-to-ontologyX.html
+0ed64060f76035ede92192e5847175bb *inst/doc/intro-to-ontologyX.html
 2538fce545e4bcdf079447e46d380db7 *inst/doc/reading-ontologies.R
 fdb04b242274ab74aff1bc8e59b6d15c *inst/doc/reading-ontologies.Rmd
-e59e4fb311ac794592967188dbcda08b *inst/doc/reading-ontologies.html
+54b932133af598ebfe01a2c60bbc4188 *inst/doc/reading-ontologies.html
 2182f13619c87717945d781a4bd0e571 *man/as.data.frame.ontology_index.Rd
 1c047d30ff04aeeedd2f554be71858e8 *man/check.Rd
 2e77bbb242981c4f8c79176b1b4ed634 *man/exclude_descendants.Rd

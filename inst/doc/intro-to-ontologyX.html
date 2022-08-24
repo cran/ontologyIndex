@@ -12,10 +12,39 @@
 
 <meta name="author" content="Daniel Greene" />
 
-<meta name="date" content="2022-08-15" />
+<meta name="date" content="2022-08-24" />
 
 <title>Introduction to ontologyX</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -37,26 +66,27 @@
   }
 </style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -65,9 +95,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -319,7 +349,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Introduction to ontologyX</h1>
 <h4 class="author">Daniel Greene</h4>
-<h4 class="date">2022-08-15</h4>
+<h4 class="date">2022-08-24</h4>
 
 
 
@@ -330,8 +360,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><code>ontologyPlot</code> for visualising sets of ontological terms with various graphical options.</li>
 </ul>
 <p>The functionality of the <code>ontologyIndex</code> package is centered around <code>ontology_index</code> objects: simple R representations of ontologies as <code>list</code>s and <code>vector</code>s of term properties (ID, label, etc.) which are named by term so that simple look-ups by term can be performed. Ontologies encoded in OBO format can be read into R as <code>ontology_index</code>es using the function <code>get_ontology</code> (see the vignette ‘Creating an ontology_index’). Ontologies in OWL syntax can be converted to OBO format using freely available software (e.g. the ROBOT command line tool: <a href="https://github.com/ontodev/robot" class="uri">https://github.com/ontodev/robot</a>). The package comes with three such ready-made <code>ontology_index</code> objects: <code>hpo</code>, <code>mpo</code> and <code>go</code>, encapsulating the Human Phenotype Ontology (HPO), Mammalian Phenotype Ontology (MPO) and Gene Ontology (GO) respectively, each loadable with <code>data</code>. Here we’ll demonstrate the package using the HPO.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(ontologyIndex)</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw">data</span>(hpo)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(ontologyIndex)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="kw">data</span>(hpo)</span></code></pre></div>
 <p>The <code>ontology_index</code> object is just a list of ‘vectors and lists’ of term properties, indexed by the IDs of the terms:</p>
 <pre><code>##    property     class
 ## 1        id character
@@ -343,7 +373,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>The properties which all <code>ontology_index</code> objects contain are <code>id</code>, <code>name</code>, <code>parents</code>, <code>children</code> and <code>ancestors</code> as these are the properties which the functions in the <code>ontologyIndex</code> package operate on. However, additional properties per term - for example custom annotation, or whatever terms are tagged with in the original OBO file - can also be read in and queried in the same way (see the vignette ‘Creating an ontology_index’).</p>
 <p>The <code>children</code> and <code>ancestors</code> properties are determined by the <code>parent</code> property, with the <code>ancestors</code> of a term derived by propagating the ‘is parent’ relation (i.e. with the terms for which the relation holds given in the <code>parent</code> property). When reading an <code>ontology_index</code> from an OBO file, the ‘is parent’ relation defaults to “is_a”. However, this can be set to any relation or combination of relations (e.g. “part_of” or both “is_a” and “part_of” - see ‘Creating an ontology_index’ and <code>?get_ontology</code> for more details). Usage of phrases involving ‘ancestors’ and ‘descendants’ of terms in this document and in the names of functions exported by the package refer to the hierarchy determined by this <code>parent</code> property.</p>
 <p>You can use the function <code>get_term_property</code> to query the <code>ontology_index</code> object, and retrieve a particular attribute for a single term. For instance:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">get_term_property</span>(<span class="dt">ontology=</span>hpo, <span class="dt">property=</span><span class="st">&quot;ancestors&quot;</span>, <span class="dt">term=</span><span class="st">&quot;HP:0001873&quot;</span>, <span class="dt">as_names=</span><span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">get_term_property</span>(<span class="dt">ontology=</span>hpo, <span class="dt">property=</span><span class="st">&quot;ancestors&quot;</span>, <span class="dt">term=</span><span class="st">&quot;HP:0001873&quot;</span>, <span class="dt">as_names=</span><span class="ot">TRUE</span>)</span></code></pre></div>
 <pre><code>##                                       HP:0000001 
 ##                                            &quot;All&quot; 
 ##                                       HP:0000118 
@@ -357,16 +387,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ##                                       HP:0001873 
 ##                               &quot;Thrombocytopenia&quot;</code></pre>
 <p>However you can also look up properties for a given term using <code>[</code> and <code>[[</code> as appropriate, since an <code>ontology_index</code> just a <code>list</code>. This is the best way to use the <code>ontology_index</code> if you are operating on multiple terms as it’s faster.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">hpo<span class="op">$</span>name[<span class="st">&quot;HP:0001873&quot;</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>hpo<span class="op">$</span>name[<span class="st">&quot;HP:0001873&quot;</span>]</span></code></pre></div>
 <pre><code>##         HP:0001873 
 ## &quot;Thrombocytopenia&quot;</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">hpo<span class="op">$</span>id[<span class="kw">grep</span>(<span class="dt">x=</span>hpo<span class="op">$</span>name, <span class="dt">pattern=</span><span class="st">&quot;Thrombocytopenia&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>hpo<span class="op">$</span>id[<span class="kw">grep</span>(<span class="dt">x=</span>hpo<span class="op">$</span>name, <span class="dt">pattern=</span><span class="st">&quot;Thrombocytopenia&quot;</span>)]</span></code></pre></div>
 <pre><code>##   HP:0001873 
 ## &quot;HP:0001873&quot;</code></pre>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">hpo<span class="op">$</span>ancestors[[<span class="st">&quot;HP:0001873&quot;</span>]]</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>hpo<span class="op">$</span>ancestors[[<span class="st">&quot;HP:0001873&quot;</span>]]</span></code></pre></div>
 <pre><code>## [1] &quot;HP:0000001&quot; &quot;HP:0000118&quot; &quot;HP:0001871&quot; &quot;HP:0001872&quot; &quot;HP:0011873&quot;
 ## [6] &quot;HP:0001873&quot;</code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">hpo<span class="op">$</span>name[hpo<span class="op">$</span>ancestors[[<span class="st">&quot;HP:0001873&quot;</span>]]]</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>hpo<span class="op">$</span>name[hpo<span class="op">$</span>ancestors[[<span class="st">&quot;HP:0001873&quot;</span>]]]</span></code></pre></div>
 <pre><code>##                                       HP:0000001 
 ##                                            &quot;All&quot; 
 ##                                       HP:0000118 
@@ -382,23 +412,23 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="removing-redundant-terms" class="section level2">
 <h2>Removing redundant terms</h2>
 <p>A set of terms (i.e. a <code>character</code> vector of term IDs) may contain redundant terms. The function <code>minimal_set</code> removes such terms leaving a <em>minimal set</em> in the sense of the ontology’s directed acyclic graph.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">terms &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;HP:0001871&quot;</span>, <span class="st">&quot;HP:0001873&quot;</span>, <span class="st">&quot;HP:0011877&quot;</span>)</a>
-<a class="sourceLine" id="cb13-2" title="2">hpo<span class="op">$</span>name[terms]</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>terms &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;HP:0001871&quot;</span>, <span class="st">&quot;HP:0001873&quot;</span>, <span class="st">&quot;HP:0011877&quot;</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>hpo<span class="op">$</span>name[terms]</span></code></pre></div>
 <pre><code>##                                       HP:0001871 
 ## &quot;Abnormality of blood and blood-forming tissues&quot; 
 ##                                       HP:0001873 
 ##                               &quot;Thrombocytopenia&quot; 
 ##                                       HP:0011877 
 ##                 &quot;Increased mean platelet volume&quot;</code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">minimal &lt;-<span class="st"> </span><span class="kw">minimal_set</span>(hpo, terms)</a>
-<a class="sourceLine" id="cb15-2" title="2">hpo<span class="op">$</span>name[minimal]</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>minimal &lt;-<span class="st"> </span><span class="kw">minimal_set</span>(hpo, terms)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>hpo<span class="op">$</span>name[minimal]</span></code></pre></div>
 <pre><code>##                       HP:0001873                       HP:0011877 
 ##               &quot;Thrombocytopenia&quot; &quot;Increased mean platelet volume&quot;</code></pre>
 </div>
 <div id="finding-all-ancestors-of-a-set-of-terms" class="section level2">
 <h2>Finding all ancestors of a set of terms</h2>
 <p>To find all the ancestors of a set of terms, i.e. all the terms which are an ancestor of any term in the given set, one can use the <code>get_ancestors</code> function:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">get_ancestors</span>(hpo, <span class="kw">c</span>(<span class="st">&quot;HP:0001873&quot;</span>, <span class="st">&quot;HP:0011877&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="kw">get_ancestors</span>(hpo, <span class="kw">c</span>(<span class="st">&quot;HP:0001873&quot;</span>, <span class="st">&quot;HP:0011877&quot;</span>))</span></code></pre></div>
 <pre><code>## [1] &quot;HP:0000001&quot; &quot;HP:0000118&quot; &quot;HP:0001871&quot; &quot;HP:0001872&quot; &quot;HP:0011873&quot;
 ## [6] &quot;HP:0001873&quot; &quot;HP:0011876&quot; &quot;HP:0011877&quot;</code></pre>
 </div>

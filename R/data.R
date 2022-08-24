@@ -155,7 +155,7 @@ get_ontology <- function(
 
 	parents <- local({
 		df <- do.call(what=rbind, lapply(properties[intersect(names(properties), propagate_relationships)], function(x) data.frame(stringsAsFactors=FALSE, p=true_ids[match(as.character(unlist(use.names=FALSE, x)), ids)], cd=rep(uids, times=lengths(x)))))
-		odf <- (function(x) x[!duplicated(x),])(df[df$p!=df$cd,])
+		odf <- (function(x) if (is.null(x)) data.frame(stringsAsFactors=FALSE, p=character(0), cd=character(0)) else x[!duplicated(x),])(df[df$p!=df$cd,])
 		split(odf$p, factor(odf$cd, levels=uids))
 	})
 
