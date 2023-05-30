@@ -173,7 +173,7 @@ get_ontology <- function(
 				version=substr(lines[seq(term_lines[1]-1)], 1, 1000),
 				parents=parents,
 				id=properties[["id"]],
-				name=properties[["name"]],
+				name=if (is.null(properties[["name"]])) properties[["id"]] else properties[["name"]],
 				obsolete=if ("is_obsolete" %in% names(properties)) (!is.na(properties[["is_obsolete"]])) & properties[["is_obsolete"]] == "true" else rep(FALSE, length(properties[["id"]]))),
 			properties[c(setdiff(use_tags, c("id","name","is_obsolete")), if (any(!is.na(equivs))) "equivalent_to")]))
 }
