@@ -8,16 +8,6 @@
 \description{
 Functions for reading ontologies into R and manipulating sets of ontological terms.
 }
-\details{
-\tabular{ll}{
-Package: \tab ontologyIndex\cr
-Type: \tab Package\cr
-Version: \tab 2.0\cr
-Date: \tab 2016-07-20\cr
-License: \tab GPL (>= 2)\cr
-}
-The key functions include \code{\link{get_ontology}} for creating the index, \code{\link{get_ancestors}} for computing the set of all terms which are ancestors of at least one from set of terms and \code{\link{get_descendants}} for getting all terms which descend from a term. The package comes with R objects \code{hpo}, \code{mpo} and \code{go} which index the Human Phenotype Ontology, Mammalian Phenotype Ontology and Gene Ontology respectively.
-}
 \author{
 Daniel Greene <dg333@cam.ac.uk>
 

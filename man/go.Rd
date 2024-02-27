@@ -8,5 +8,5 @@
 List of lists and vectors
 }
 \description{
-\code{ontology_index} object encapsulating structure of the Gene Ontology (HPO) comprising a \code{list} of lists/vectors of properties of GO terms indexed by term ID
+\code{ontology_index} object encapsulating structure of the Gene Ontology (HPO) comprising a \code{list} of lists/vectors of properties of GO terms indexed by term ID (downloaded from https://current.geneontology.org/ontology/go-basic.obo).
 }

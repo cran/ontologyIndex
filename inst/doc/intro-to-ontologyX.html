@@ -12,7 +12,7 @@
 
 <meta name="author" content="Daniel Greene" />
 
-<meta name="date" content="2023-05-30" />
+<meta name="date" content="2024-02-20" />
 
 <title>Introduction to ontologyX</title>
 
@@ -137,13 +137,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -349,7 +356,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Introduction to ontologyX</h1>
 <h4 class="author">Daniel Greene</h4>
-<h4 class="date">2023-05-30</h4>
+<h4 class="date">2024-02-20</h4>
 
 
 
@@ -382,6 +389,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## &quot;Abnormality of blood and blood-forming tissues&quot; 
 ##                                       HP:0001872 
 ##                    &quot;Abnormality of thrombocytes&quot; 
+##                                       HP:0011875 
+##                   &quot;Abnormal platelet morphology&quot; 
 ##                                       HP:0011873 
 ##                        &quot;Abnormal platelet count&quot; 
 ##                                       HP:0001873 
@@ -394,8 +403,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <pre><code>##   HP:0001873 
 ## &quot;HP:0001873&quot;</code></pre>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>hpo<span class="op">$</span>ancestors[[<span class="st">&quot;HP:0001873&quot;</span>]]</span></code></pre></div>
-<pre><code>## [1] &quot;HP:0000001&quot; &quot;HP:0000118&quot; &quot;HP:0001871&quot; &quot;HP:0001872&quot; &quot;HP:0011873&quot;
-## [6] &quot;HP:0001873&quot;</code></pre>
+<pre><code>##   HP:0000001   HP:0000118   HP:0001871   HP:0001872   HP:0011875   HP:0011873 
+## &quot;HP:0000001&quot; &quot;HP:0000118&quot; &quot;HP:0001871&quot; &quot;HP:0001872&quot; &quot;HP:0011875&quot; &quot;HP:0011873&quot; 
+##   HP:0001873 
+## &quot;HP:0001873&quot;</code></pre>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>hpo<span class="op">$</span>name[hpo<span class="op">$</span>ancestors[[<span class="st">&quot;HP:0001873&quot;</span>]]]</span></code></pre></div>
 <pre><code>##                                       HP:0000001 
 ##                                            &quot;All&quot; 
@@ -405,6 +416,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## &quot;Abnormality of blood and blood-forming tissues&quot; 
 ##                                       HP:0001872 
 ##                    &quot;Abnormality of thrombocytes&quot; 
+##                                       HP:0011875 
+##                   &quot;Abnormal platelet morphology&quot; 
 ##                                       HP:0011873 
 ##                        &quot;Abnormal platelet count&quot; 
 ##                                       HP:0001873 
@@ -429,8 +442,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>Finding all ancestors of a set of terms</h2>
 <p>To find all the ancestors of a set of terms, i.e. all the terms which are an ancestor of any term in the given set, one can use the <code>get_ancestors</code> function:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="kw">get_ancestors</span>(hpo, <span class="kw">c</span>(<span class="st">&quot;HP:0001873&quot;</span>, <span class="st">&quot;HP:0011877&quot;</span>))</span></code></pre></div>
-<pre><code>## [1] &quot;HP:0000001&quot; &quot;HP:0000118&quot; &quot;HP:0001871&quot; &quot;HP:0001872&quot; &quot;HP:0011873&quot;
-## [6] &quot;HP:0001873&quot; &quot;HP:0011876&quot; &quot;HP:0011877&quot;</code></pre>
+<pre><code>## [1] &quot;HP:0000001&quot; &quot;HP:0000118&quot; &quot;HP:0001871&quot; &quot;HP:0001872&quot; &quot;HP:0011875&quot;
+## [6] &quot;HP:0011873&quot; &quot;HP:0001873&quot; &quot;HP:0011876&quot; &quot;HP:0011877&quot;</code></pre>
 </div>
 <div id="operating-on-subclasses" class="section level2">
 <h2>Operating on subclasses</h2>

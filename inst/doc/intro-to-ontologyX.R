@@ -5,7 +5,7 @@ knitr::opts_chunk$set(fig.width=7, fig.height=5, fig.align="center")
 library(ontologyIndex)
 data(hpo)
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 data.frame(property=names(hpo), class=sapply(hpo, class), stringsAsFactors=FALSE, row.names=NULL)
 
 ## -----------------------------------------------------------------------------

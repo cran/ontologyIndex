@@ -8,5 +8,5 @@
 List of lists and vectors
 }
 \description{
-\code{ontology_index} object encapsulating structure of the Mammalian Phenotype Ontology (MPO) comprising a \code{list} of lists/vectors of properties of MPO terms indexed by term ID
+\code{ontology_index} object encapsulating structure of the Mammalian Phenotype Ontology (MPO) comprising a \code{list} of lists/vectors of properties of MPO terms indexed by term ID (downloaded from https://www.informatics.jax.org/downloads/reports/MPheno_OBO.ontology).
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/data.R
 \name{check}
 \alias{check}
-\title{Perform simple consistency checks on \code{ontology_index} object}
+\title{Check an ontology index object}
 \usage{
 check(ontology, stop_if_invalid = FALSE)
 }

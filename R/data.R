@@ -182,32 +182,29 @@ get_ontology <- function(
 #' @rdname get_ontology
 get_OBO <- get_ontology
 
-#' \code{ontology_index} object encapsulating structure of the Gene Ontology (HPO) comprising a \code{list} of lists/vectors of properties of GO terms indexed by term ID
-#' 
-#' @name go 
 #' @title GO index
+#' @description \code{ontology_index} object encapsulating structure of the Gene Ontology (HPO) comprising a \code{list} of lists/vectors of properties of GO terms indexed by term ID (downloaded from https://current.geneontology.org/ontology/go-basic.obo).
+#' @name go 
 #' @docType data
 #' @format List of lists and vectors
 NULL
 
-#' \code{ontology_index} object encapsulating structure of the Human Phenotype Ontology (HPO) comprising a \code{list} of lists/vectors of properties of HPO terms indexed by term ID
-#' 
-#' @name hpo
 #' @title HPO index
+#' @description \code{ontology_index} object encapsulating structure of the Human Phenotype Ontology (HPO) comprising a \code{list} of lists/vectors of properties of HPO terms indexed by term ID (downloaded from https://hpo.jax.org/app/data/ontology).
+#' @name hpo
 #' @docType data
 #' @format List of lists and vectors
 NULL
 
-#' \code{ontology_index} object encapsulating structure of the Mammalian Phenotype Ontology (MPO) comprising a \code{list} of lists/vectors of properties of MPO terms indexed by term ID
-#' 
-#' @name mpo
 #' @title MPO index
+#' @description \code{ontology_index} object encapsulating structure of the Mammalian Phenotype Ontology (MPO) comprising a \code{list} of lists/vectors of properties of MPO terms indexed by term ID (downloaded from https://www.informatics.jax.org/downloads/reports/MPheno_OBO.ontology).
+#' @name mpo
 #' @docType data
 #' @format List of lists and vectors
 NULL
 
-#' Perform simple consistency checks on \code{ontology_index} object 
-#'
+#' @title Check an ontology index object
+#' @description Perform simple consistency checks on \code{ontology_index} object 
 #' @template ontology
 #' @param stop_if_invalid Logical value determining whether the function should call \code{stop} and print an error message upon finding that the given \code{ontology_index} is in valid.
 #' @export
